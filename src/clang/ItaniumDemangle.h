@@ -2984,7 +2984,7 @@ template<typename Derived, typename Alloc> struct AbstractManglingParser
   Node* parse( bool ParseParams = true );
 };
 
-DEMANGLE_ABI const char* parse_discriminator( const char* first, const char* last );
+const char* parse_discriminator( const char* first, const char* last );
 
 // <name> ::= <nested-name> // N
 //        ::= <local-name> # See Scope Encoding below  // Z

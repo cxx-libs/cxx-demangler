@@ -1,4 +1,6 @@
 #pragma once
+#include "cxx/demangler/export.hpp"
+
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -80,7 +82,7 @@ public:
    *
    * @see set_max_size
    */
-  static std::size_t preallocate_buffers( const std::size_t size ) noexcept;
+  CXX_EXPORT static std::size_t preallocate_buffers( const std::size_t size ) noexcept;
 
   /**
    * @brief Sets the maximum allowed buffer size.
@@ -96,7 +98,7 @@ public:
    *
    * @see preallocate_buffers
    */
-  static void set_max_size( const std::size_t size ) noexcept { max_capacity = size; }
+  CXX_EXPORT static void set_max_size( const std::size_t size ) noexcept { max_capacity = size; }
 
   /**
    * @brief Function call operator for demangling.
@@ -114,7 +116,7 @@ public:
    *
    * @see call
    */
-  std::string operator()( const std::string_view mangled, const Backend backend = Backend::clang ) const noexcept { return call( mangled, backend ); }
+  CXX_EXPORT std::string operator()( const std::string_view mangled, const Backend backend = Backend::clang ) const noexcept { return call( mangled, backend ); }
 
   /**
    * @brief Demangles a symbol name using the specified backend.
@@ -137,7 +139,7 @@ public:
    * @see Backend
    * @see preallocate_buffers
    */
-  static std::string call( const std::string_view mangled, const Backend backend = Backend::clang ) noexcept;
+  CXX_EXPORT static std::string call( const std::string_view mangled, const Backend backend = Backend::clang ) noexcept;
 
 private:
   /**

@@ -316,7 +316,7 @@ struct Node
 
   virtual void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const = 0;
 
-  DEMANGLE_ABI std::string toString( OutputFlags Flags = OF_Default ) const;
+  std::string toString( OutputFlags Flags = OF_Default ) const;
 
 private:
   NodeKind Kind;
@@ -367,7 +367,7 @@ struct TypeNode : public Node
   Qualifiers Quals = Q_None;
 };
 
-struct DEMANGLE_ABI PrimitiveTypeNode : public TypeNode
+struct PrimitiveTypeNode : public TypeNode
 {
   explicit PrimitiveTypeNode( PrimitiveKind K ) : TypeNode( NodeKind::PrimitiveType ), PrimKind( K ) {}
 
@@ -379,7 +379,7 @@ struct DEMANGLE_ABI PrimitiveTypeNode : public TypeNode
   PrimitiveKind PrimKind;
 };
 
-struct DEMANGLE_ABI FunctionSignatureNode : public TypeNode
+struct FunctionSignatureNode : public TypeNode
 {
   explicit FunctionSignatureNode( NodeKind K ) : TypeNode( K ) {}
   FunctionSignatureNode() : TypeNode( NodeKind::FunctionSignature ) {}
@@ -423,10 +423,10 @@ struct IdentifierNode : public Node
   NodeArrayNode* TemplateParams = nullptr;
 
 protected:
-  DEMANGLE_ABI void outputTemplateParameters( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const;
+  void outputTemplateParameters( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const;
 };
 
-struct DEMANGLE_ABI VcallThunkIdentifierNode : public IdentifierNode
+struct VcallThunkIdentifierNode : public IdentifierNode
 {
   VcallThunkIdentifierNode() : IdentifierNode( NodeKind::VcallThunkIdentifier ) {}
 
@@ -437,7 +437,7 @@ struct DEMANGLE_ABI VcallThunkIdentifierNode : public IdentifierNode
   uint64_t OffsetInVTable = 0;
 };
 
-struct DEMANGLE_ABI DynamicStructorIdentifierNode : public IdentifierNode
+struct DynamicStructorIdentifierNode : public IdentifierNode
 {
   DynamicStructorIdentifierNode() : IdentifierNode( NodeKind::DynamicStructorIdentifier ) {}
 
@@ -450,7 +450,7 @@ struct DEMANGLE_ABI DynamicStructorIdentifierNode : public IdentifierNode
   bool                IsDestructor = false;
 };
 
-struct DEMANGLE_ABI NamedIdentifierNode : public IdentifierNode
+struct NamedIdentifierNode : public IdentifierNode
 {
   NamedIdentifierNode() : IdentifierNode( NodeKind::NamedIdentifier ) {}
 
@@ -461,7 +461,7 @@ struct DEMANGLE_ABI NamedIdentifierNode : public IdentifierNode
   std::string_view Name;
 };
 
-struct DEMANGLE_ABI IntrinsicFunctionIdentifierNode : public IdentifierNode
+struct IntrinsicFunctionIdentifierNode : public IdentifierNode
 {
   explicit IntrinsicFunctionIdentifierNode( IntrinsicFunctionKind Operator ) : IdentifierNode( NodeKind::IntrinsicFunctionIdentifier ), Operator( Operator ) {}
 
@@ -472,7 +472,7 @@ struct DEMANGLE_ABI IntrinsicFunctionIdentifierNode : public IdentifierNode
   IntrinsicFunctionKind Operator;
 };
 
-struct DEMANGLE_ABI LiteralOperatorIdentifierNode : public IdentifierNode
+struct LiteralOperatorIdentifierNode : public IdentifierNode
 {
   LiteralOperatorIdentifierNode() : IdentifierNode( NodeKind::LiteralOperatorIdentifier ) {}
 
@@ -483,7 +483,7 @@ struct DEMANGLE_ABI LiteralOperatorIdentifierNode : public IdentifierNode
   std::string_view Name;
 };
 
-struct DEMANGLE_ABI LocalStaticGuardIdentifierNode : public IdentifierNode
+struct LocalStaticGuardIdentifierNode : public IdentifierNode
 {
   LocalStaticGuardIdentifierNode() : IdentifierNode( NodeKind::LocalStaticGuardIdentifier ) {}
 
@@ -495,7 +495,7 @@ struct DEMANGLE_ABI LocalStaticGuardIdentifierNode : public IdentifierNode
   uint32_t ScopeIndex = 0;
 };
 
-struct DEMANGLE_ABI ConversionOperatorIdentifierNode : public IdentifierNode
+struct ConversionOperatorIdentifierNode : public IdentifierNode
 {
   ConversionOperatorIdentifierNode() : IdentifierNode( NodeKind::ConversionOperatorIdentifier ) {}
 
@@ -507,7 +507,7 @@ struct DEMANGLE_ABI ConversionOperatorIdentifierNode : public IdentifierNode
   TypeNode* TargetType = nullptr;
 };
 
-struct DEMANGLE_ABI StructorIdentifierNode : public IdentifierNode
+struct StructorIdentifierNode : public IdentifierNode
 {
   StructorIdentifierNode() : IdentifierNode( NodeKind::StructorIdentifier ) {}
   explicit StructorIdentifierNode( bool IsDestructor ) : IdentifierNode( NodeKind::StructorIdentifier ), IsDestructor( IsDestructor ) {}
@@ -521,7 +521,7 @@ struct DEMANGLE_ABI StructorIdentifierNode : public IdentifierNode
   bool            IsDestructor = false;
 };
 
-struct DEMANGLE_ABI ThunkSignatureNode : public FunctionSignatureNode
+struct ThunkSignatureNode : public FunctionSignatureNode
 {
   ThunkSignatureNode() : FunctionSignatureNode( NodeKind::ThunkSignature ) {}
 
@@ -541,7 +541,7 @@ struct DEMANGLE_ABI ThunkSignatureNode : public FunctionSignatureNode
   ThisAdjustor ThisAdjust;
 };
 
-struct DEMANGLE_ABI PointerTypeNode : public TypeNode
+struct PointerTypeNode : public TypeNode
 {
   PointerTypeNode() : TypeNode( NodeKind::PointerType ) {}
   void outputPre( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
@@ -562,7 +562,7 @@ struct DEMANGLE_ABI PointerTypeNode : public TypeNode
   TypeNode* Pointee = nullptr;
 };
 
-struct DEMANGLE_ABI TagTypeNode : public TypeNode
+struct TagTypeNode : public TypeNode
 {
   explicit TagTypeNode( TagKind Tag ) : TypeNode( NodeKind::TagType ), Tag( Tag ) {}
 
@@ -575,7 +575,7 @@ struct DEMANGLE_ABI TagTypeNode : public TypeNode
   TagKind            Tag;
 };
 
-struct DEMANGLE_ABI ArrayTypeNode : public TypeNode
+struct ArrayTypeNode : public TypeNode
 {
   ArrayTypeNode() : TypeNode( NodeKind::ArrayType ) {}
 
@@ -602,7 +602,7 @@ struct IntrinsicNode : public TypeNode
   static bool classof( const Node* N ) { return N->kind() == NodeKind::IntrinsicType; }
 };
 
-struct DEMANGLE_ABI CustomTypeNode : public TypeNode
+struct CustomTypeNode : public TypeNode
 {
   CustomTypeNode() : TypeNode( NodeKind::Custom ) {}
 
@@ -614,7 +614,7 @@ struct DEMANGLE_ABI CustomTypeNode : public TypeNode
   IdentifierNode* Identifier = nullptr;
 };
 
-struct DEMANGLE_ABI NodeArrayNode : public Node
+struct NodeArrayNode : public Node
 {
   NodeArrayNode() : Node( NodeKind::NodeArray ) {}
 
@@ -628,7 +628,7 @@ struct DEMANGLE_ABI NodeArrayNode : public Node
   size_t Count = 0;
 };
 
-struct DEMANGLE_ABI QualifiedNameNode : public Node
+struct QualifiedNameNode : public Node
 {
   QualifiedNameNode() : Node( NodeKind::QualifiedName ) {}
 
@@ -645,7 +645,7 @@ struct DEMANGLE_ABI QualifiedNameNode : public Node
   }
 };
 
-struct DEMANGLE_ABI TemplateParameterReferenceNode : public Node
+struct TemplateParameterReferenceNode : public Node
 {
   TemplateParameterReferenceNode() : Node( NodeKind::TemplateParameterReference ) {}
 
@@ -661,7 +661,7 @@ struct DEMANGLE_ABI TemplateParameterReferenceNode : public Node
   bool                   IsMemberPointer = false;
 };
 
-struct DEMANGLE_ABI IntegerLiteralNode : public Node
+struct IntegerLiteralNode : public Node
 {
   IntegerLiteralNode() : Node( NodeKind::IntegerLiteral ) {}
   IntegerLiteralNode( uint64_t Value, bool IsNegative ) : Node( NodeKind::IntegerLiteral ), Value( Value ), IsNegative( IsNegative ) {}
@@ -674,7 +674,7 @@ struct DEMANGLE_ABI IntegerLiteralNode : public Node
   bool     IsNegative = false;
 };
 
-struct DEMANGLE_ABI RttiBaseClassDescriptorNode : public IdentifierNode
+struct RttiBaseClassDescriptorNode : public IdentifierNode
 {
   RttiBaseClassDescriptorNode() : IdentifierNode( NodeKind::RttiBaseClassDescriptor ) {}
 
@@ -688,7 +688,7 @@ struct DEMANGLE_ABI RttiBaseClassDescriptorNode : public IdentifierNode
   uint32_t Flags         = 0;
 };
 
-struct DEMANGLE_ABI SymbolNode : public Node
+struct SymbolNode : public Node
 {
   explicit SymbolNode( NodeKind K ) : Node( K ) {}
   void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
@@ -698,7 +698,7 @@ struct DEMANGLE_ABI SymbolNode : public Node
   QualifiedNameNode* Name = nullptr;
 };
 
-struct DEMANGLE_ABI SpecialTableSymbolNode : public SymbolNode
+struct SpecialTableSymbolNode : public SymbolNode
 {
   explicit SpecialTableSymbolNode() : SymbolNode( NodeKind::SpecialTableSymbol ) {}
 
@@ -710,7 +710,7 @@ struct DEMANGLE_ABI SpecialTableSymbolNode : public SymbolNode
   Qualifiers     Quals       = Qualifiers::Q_None;
 };
 
-struct DEMANGLE_ABI LocalStaticGuardVariableNode : public SymbolNode
+struct LocalStaticGuardVariableNode : public SymbolNode
 {
   LocalStaticGuardVariableNode() : SymbolNode( NodeKind::LocalStaticGuardVariable ) {}
 
@@ -721,7 +721,7 @@ struct DEMANGLE_ABI LocalStaticGuardVariableNode : public SymbolNode
   bool IsVisible = false;
 };
 
-struct DEMANGLE_ABI EncodedStringLiteralNode : public SymbolNode
+struct EncodedStringLiteralNode : public SymbolNode
 {
   EncodedStringLiteralNode() : SymbolNode( NodeKind::EncodedStringLiteral ) {}
 
@@ -734,7 +734,7 @@ struct DEMANGLE_ABI EncodedStringLiteralNode : public SymbolNode
   CharKind         Char        = CharKind::Char;
 };
 
-struct DEMANGLE_ABI VariableSymbolNode : public SymbolNode
+struct VariableSymbolNode : public SymbolNode
 {
   VariableSymbolNode() : SymbolNode( NodeKind::VariableSymbol ) {}
 
@@ -746,7 +746,7 @@ struct DEMANGLE_ABI VariableSymbolNode : public SymbolNode
   TypeNode*    Type = nullptr;
 };
 
-struct DEMANGLE_ABI FunctionSymbolNode : public SymbolNode
+struct FunctionSymbolNode : public SymbolNode
 {
   FunctionSymbolNode() : SymbolNode( NodeKind::FunctionSymbol ) {}
 
@@ -757,7 +757,7 @@ struct DEMANGLE_ABI FunctionSymbolNode : public SymbolNode
   FunctionSignatureNode* Signature = nullptr;
 };
 
-struct DEMANGLE_ABI PointerAuthQualifierNode : public Node
+struct PointerAuthQualifierNode : public Node
 {
   PointerAuthQualifierNode() : Node( NodeKind::PointerAuthQualifier ) {}
 

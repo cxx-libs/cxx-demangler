@@ -26,17 +26,13 @@ std::string cxx::demangler::Demangler::call_os_backend( const std::string_view m
   // DbgHelp is globally non-thread-safe
   static std::mutex mutex;
 
-  constexpr DWORD flags = UNDNAME_NO_MS_KEYWORDS | UNDNAME_NO_ACCESS_SPECIFIERS;
-
-  constexpr std::size_t max_size = 1024 * 1024;
-
   DWORD result = 0;
   DWORD size   = default_capacity;
   do
   {
     {
       std::lock_guard lock( mutex );
-      result = ::UnDecorateSymbolName( std::string( mangled ).data(), buffer.get(), static_cast<DWORD>( size ), flags );
+      result = ::UnDecorateSymbolName( std::string( mangled ).data(), buffer.get(), static_cast<DWORD>( size ), UNDNAME_COMPLETE );
     }
 
     if( result != 0 ) return { buffer.get(), static_cast<std::size_t>( result ) };

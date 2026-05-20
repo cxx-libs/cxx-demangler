@@ -1,0 +1,20 @@
+@PACKAGE_INIT@
+include(CMakeFindDependencyMacro)
+
+include("${CMAKE_CURRENT_LIST_DIR}/cxx_demanglerTargets.cmake")
+
+option(CXX_DEMANGLER_USE_SHARED "Use shared cxx_demangler library" ON)
+
+if(NOT TARGET cxx::demangler)
+  if(CXX_DEMANGLER_USE_SHARED)
+    if(TARGET cxx::cxx_demangler_shared)
+      add_library(cxx::demangler ALIAS cxx::cxx_demangler_shared)
+    endif()
+  else()
+    if(TARGET cxx::cxx_demangler_static)
+      add_library(cxx::demangler ALIAS cxx::cxx_demangler_static)
+    endif()
+  endif()
+endif()
+
+check_required_components(cxx_demangler)
