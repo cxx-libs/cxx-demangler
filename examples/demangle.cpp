@@ -21,6 +21,6 @@ int main()
   std::cout << my_demangler( "_ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EEC1Ev" ) << std::endl;
   for( const auto& item: mangleds ) { std::cout << my_demangler.call( item ) << std::endl; }
 
-  std::cout << "CLANG" << std::endl;
-  for( const auto& item: mangleds ) { std::cout << my_demangler.call( item, cxx::demangler::Demangler::Backend::clang ) << std::endl; }
+  std::cout << "OS backend" << std::endl;
+  for( const auto& item: mangleds ) { std::cout << my_demangler.call( item, cxx::demangler::Demangler::Backend::os ) << std::endl; }
 }
