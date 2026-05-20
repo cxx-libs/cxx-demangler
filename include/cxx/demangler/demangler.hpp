@@ -17,12 +17,14 @@ public:
     clang,
   };
   static std::size_t preallocate_buffers( const std::size_t size ) noexcept;
+  //static std::size_t set_max_size(const std::size_t size) noexcept { max_capacity= size; }
   std::string        operator()( const std::string_view mangled, const Backend backend = Backend::clang ) const noexcept { return call( mangled, backend ); }
   static std::string call( const std::string_view mangled, const Backend backend = Backend::clang ) noexcept;
 
 private:
   inline static thread_local std::unique_ptr<char[]> buffer{ nullptr };
-  inline static thread_local std::size_t             default_capacity{ 1024u };
+  inline static std::size_t                          default_capacity{ 1024u };
+  inline static std::size_t                          max_capacity{ 1024 * 1024 };
   static std::string                                 call_os_backend( const std::string_view mangled );
 };
 

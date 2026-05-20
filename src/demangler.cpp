@@ -9,16 +9,53 @@
 
 #if defined( _WIN32 )
 
+  #include <mutex>
+// clang-format off
+#include <windows.h>
+#include <dbghelp.h>
+// clang-format on
+
+  #pragma comment( lib, "Dbghelp.lib" )
+std::string cxx::demangler::Demangler::call_os_backend( const std::string_view mangled )
+{
+  if( mangled.empty() ) return {};
+  if( mangled.front() != '?' ) return std::string( mangled );  // MSVC symbols usually start with '?'
+  if( !buffer ) buffer.reset( new( std::nothrow ) char[default_capacity] );
+  if( !buffer ) return std::string( mangled );
+  // DbgHelp is globally non-thread-safe
+  static std::mutex mutex;
+
+  constexpr DWORD flags = UNDNAME_NO_MS_KEYWORDS | UNDNAME_NO_ACCESS_SPECIFIERS;
+
+  constexpr std::size_t max_size = 1024 * 1024;
+
+  DWORD result = 0;
+  DWORD size   = default_capacity;
+  do
+  {
+    {
+      std::lock_guard lock( mutex );
+      result = ::UnDecorateSymbolName( std::string( mangled ).data(), buffer.get(), static_cast<DWORD>( size ), flags );
+    }
+
+    if( result != 0 ) return { buffer.get(), static_cast<std::size_t>( result ) };
+    size *= 2;
+    buffer.reset( new( std::nothrow ) char[size] );
+  } while( result == 0 && size <= max_size );
+  return std::string( mangled );
+}
+  #undef DBGHELP_TRANSLATE_TCHAR
 #else
   #include <cxxabi.h>
 std::string cxx::demangler::Demangler::call_os_backend( const std::string_view mangled )
 {
   if( !buffer ) buffer.reset( new( std::nothrow ) char[default_capacity] );
+  if( mangled.empty() ) return {};
   if( buffer )
   {
     static thread_local int   status{ 0 };
     static thread_local char* result{ nullptr };
-    result = ::abi::__cxa_demangle( mangled.data(), buffer.get(), &default_capacity, &status );
+    result = ::abi::__cxa_demangle( std::string( mangled ).data(), buffer.get(), &default_capacity, &status );
     if( status == 0 && result )
     {
       if( result != buffer.get() )

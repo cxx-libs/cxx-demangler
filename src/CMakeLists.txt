@@ -17,7 +17,7 @@ set_target_properties(cxx_demangler PROPERTIES
     POSITION_INDEPENDENT_CODE ON
     CXX_EXTENSIONS OFF
     CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD 23
+    CXX_STANDARD 17
     PUBLIC_HEADER "include/cxx/demangler/demangler.hpp"
 )
 #if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
