@@ -13,16 +13,14 @@
 //===----------------------------------------------------------------------===//
 #pragma once
 
-#include "DemangleConfig.h"
-
 #include <string_view>
 
 namespace cxx::demangler::backend::clang
 {
 
-inline bool starts_with( std::string_view self, char C ) noexcept { return !self.empty() && *self.begin() == C; }
+inline bool starts_with( const std::string_view self, const char C ) noexcept { return !self.empty() && *self.begin() == C; }
 
-inline bool starts_with( std::string_view haystack, std::string_view needle ) noexcept
+inline bool starts_with( std::string_view haystack, const std::string_view needle ) noexcept
 {
   if( needle.size() > haystack.size() ) return false;
   haystack.remove_suffix( haystack.size() - needle.size() );

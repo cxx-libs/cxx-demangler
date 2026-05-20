@@ -57,7 +57,7 @@ enum MSDemangleFlags
 /// Flags controls various details of the demangled representation.
 DEMANGLE_ABI char* microsoftDemangle( std::string_view mangled_name, size_t* n_read, int* status, MSDemangleFlags Flags = MSDF_None );
 
-DEMANGLE_ABI std::optional<size_t> getArm64ECInsertionPointInMangledName( std::string_view MangledName );
+DEMANGLE_ABI std::optional<std::size_t> getArm64ECInsertionPointInMangledName( const std::string_view MangledName );
 
 /// Attempt to demangle a string using different demangling schemes.
 /// The function uses heuristics to determine which demangling scheme to use.

@@ -30,12 +30,12 @@
 using namespace llvm;
 using namespace ms_demangle;
 
-static bool startsWithDigit( std::string_view S ) { return !S.empty() && std::isdigit( S.front() ); }
+static bool startsWithDigit( const std::string_view S ) { return !S.empty() && std::isdigit( S.front() ); }
 
 struct NodeList
 {
-  Node*     N    = nullptr;
-  NodeList* Next = nullptr;
+  Node*     N{ nullptr };
+  NodeList* Next{ nullptr };
 };
 
 static bool consumeFront( std::string_view& S, char C )
@@ -200,9 +200,9 @@ static bool isTagType( std::string_view S )
   return false;
 }
 
-static bool isCustomType( std::string_view S ) { return S[0] == '?'; }
+static bool isCustomType( const std::string_view S ) noexcept { return S[0] == '?'; }
 
-static bool isPointerType( std::string_view S )
+static bool isPointerType( std::string_view S ) noexcept
 {
   if( cxx::demangler::backend::clang::starts_with( S, "$$Q" ) )  // foo &&
     return true;
@@ -219,9 +219,9 @@ static bool isPointerType( std::string_view S )
   return false;
 }
 
-static bool isArrayType( std::string_view S ) { return S[0] == 'Y'; }
+static bool isArrayType( const std::string_view S ) noexcept { return S[0] == 'Y'; }
 
-static bool isFunctionType( std::string_view S ) { return cxx::demangler::backend::clang::starts_with( S, "$$A8@@" ) || cxx::demangler::backend::clang::starts_with( S, "$$A6" ); }
+static bool isFunctionType( const std::string_view S ) noexcept { return cxx::demangler::backend::clang::starts_with( S, "$$A8@@" ) || cxx::demangler::backend::clang::starts_with( S, "$$A6" ); }
 
 static FunctionRefQualifier demangleFunctionRefQualifier( std::string_view& MangledName )
 {
@@ -263,7 +263,7 @@ static NodeArrayNode* nodeListToNodeArray( ArenaAllocator& Arena, NodeList* Head
   return N;
 }
 
-std::string_view Demangler::copyString( std::string_view Borrowed )
+std::string_view Demangler::copyString( const std::string_view Borrowed )
 {
   char* Stable = Arena.allocUnalignedBuffer( Borrowed.size() );
   // This is not a micro-optimization, it avoids UB, should Borrowed be an null
@@ -2269,7 +2269,7 @@ void Demangler::dumpBackReferences()
   if( Backrefs.NamesCount > 0 ) std::printf( "\n" );
 }
 
-std::optional<size_t> cxx::demangler::backend::clang::getArm64ECInsertionPointInMangledName( std::string_view MangledName )
+std::optional<std::size_t> cxx::demangler::backend::clang::getArm64ECInsertionPointInMangledName( const std::string_view MangledName )
 {
   std::string_view ProcessedName{ MangledName };
 

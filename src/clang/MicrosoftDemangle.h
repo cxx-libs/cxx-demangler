@@ -23,19 +23,19 @@ namespace ms_demangle
 // (such as std::vector) with this allocator. But it pays off --
 // the demangler is 3x faster with this allocator compared to one with
 // STL containers.
-constexpr size_t AllocUnit = 4096;
+constexpr std::size_t AllocUnit{ 4096 };
 
 class ArenaAllocator
 {
   struct AllocatorNode
   {
-    uint8_t*       Buf      = nullptr;
-    size_t         Used     = 0;
-    size_t         Capacity = 0;
-    AllocatorNode* Next     = nullptr;
+    std::uint8_t*  Buf{ nullptr };
+    std::size_t    Used{ 0 };
+    std::size_t    Capacity{ 0 };
+    AllocatorNode* Next{ nullptr };
   };
 
-  void addNode( size_t Capacity )
+  void addNode( const std::size_t Capacity )
   {
     AllocatorNode* NewHead = new AllocatorNode;
     NewHead->Buf           = new uint8_t[Capacity];
@@ -63,9 +63,9 @@ public:
   ArenaAllocator( const ArenaAllocator& )            = delete;
   ArenaAllocator& operator=( const ArenaAllocator& ) = delete;
 
-  char* allocUnalignedBuffer( size_t Size )
+  char* allocUnalignedBuffer( const std::size_t Size )
   {
-    uint8_t* P = Head->Buf + Head->Used;
+    std::uint8_t* P{ Head->Buf + Head->Used };
 
     Head->Used += Size;
     if( Head->Used <= Head->Capacity ) return reinterpret_cast<char*>( P );
@@ -75,9 +75,9 @@ public:
     return reinterpret_cast<char*>( Head->Buf );
   }
 
-  template<typename T, typename... Args> T* allocArray( size_t Count )
+  template<typename T, typename... Args> T* allocArray( const std::size_t Count )
   {
-    size_t Size = Count * sizeof( T );
+    std::size_t Size = Count * sizeof( T );
 
     size_t    P          = (size_t)Head->Buf + Head->Used;
     uintptr_t AlignedP   = ( ( (size_t)P + alignof( T ) - 1 ) & ~(size_t)( alignof( T ) - 1 ) );
@@ -111,37 +111,37 @@ public:
   }
 
 private:
-  AllocatorNode* Head = nullptr;
+  AllocatorNode* Head{ nullptr };
 };
 
 struct BackrefContext
 {
-  static constexpr size_t Max = 10;
+  static constexpr std::size_t Max{ 10 };
 
-  TypeNode* FunctionParams[Max];
-  size_t    FunctionParamCount = 0;
+  TypeNode*   FunctionParams[Max];
+  std::size_t FunctionParamCount{ 0 };
 
   // The first 10 BackReferences in a mangled name can be back-referenced by
   // special name @[0-9]. This is a storage for the first 10 BackReferences.
   NamedIdentifierNode* Names[Max];
-  size_t               NamesCount = 0;
+  std::size_t          NamesCount{ 0 };
 };
 
-enum class QualifierMangleMode
+enum class QualifierMangleMode : std::uint8_t
 {
   Drop,
   Mangle,
   Result
 };
 
-enum NameBackrefBehavior : uint8_t
+enum NameBackrefBehavior : std::uint8_t
 {
   NBB_None     = 0,       // don't save any names as backrefs.
   NBB_Template = 1 << 0,  // save template instanations.
   NBB_Simple   = 1 << 1,  // save simple names.
 };
 
-enum class FunctionIdentifierCodeGroup
+enum class FunctionIdentifierCodeGroup : std::uint8_t
 {
   Basic,
   Under,
@@ -153,7 +153,7 @@ enum class FunctionIdentifierCodeGroup
 // It also has a set of functions to convert Type instances to strings.
 class Demangler
 {
-  friend std::optional<size_t> cxx::demangler::backend::clang::getArm64ECInsertionPointInMangledName( std::string_view MangledName );
+  friend std::optional<std::size_t> cxx::demangler::backend::clang::getArm64ECInsertionPointInMangledName( const std::string_view MangledName );
 
 public:
   Demangler()          = default;
@@ -201,9 +201,9 @@ private:
   NodeArrayNode* demangleFunctionParameterList( std::string_view& MangledName, bool& IsVariadic );
   NodeArrayNode* demangleTemplateParameterList( std::string_view& MangledName );
 
-  std::pair<uint64_t, bool> demangleNumber( std::string_view& MangledName );
-  uint64_t                  demangleUnsigned( std::string_view& MangledName );
-  int64_t                   demangleSigned( std::string_view& MangledName );
+  std::pair<std::uint64_t, bool> demangleNumber( std::string_view& MangledName );
+  std::uint64_t                  demangleUnsigned( std::string_view& MangledName );
+  std::int64_t                   demangleSigned( std::string_view& MangledName );
 
   void memorizeString( std::string_view s );
   void memorizeIdentifier( IdentifierNode* Identifier );
