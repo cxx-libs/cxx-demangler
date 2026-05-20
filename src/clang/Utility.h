@@ -31,80 +31,78 @@ class Node;
 
 // Stream that AST nodes write their string representation into after the AST
 // has been parsed.
-class OutputBuffer {
-  char *Buffer = nullptr;
+class OutputBuffer
+{
+  char*  Buffer          = nullptr;
   size_t CurrentPosition = 0;
-  size_t BufferCapacity = 0;
+  size_t BufferCapacity  = 0;
 
   // Ensure there are at least N more positions in the buffer.
-  void grow(size_t N) {
+  void grow( size_t N )
+  {
     size_t Need = N + CurrentPosition;
-    if (Need > BufferCapacity) {
+    if( Need > BufferCapacity )
+    {
       // Reduce the number of reallocations, with a bit of hysteresis. The
       // number here is chosen so the first allocation will more-than-likely not
       // allocate more than 1K.
       Need += 1024 - 32;
       BufferCapacity *= 2;
-      if (BufferCapacity < Need)
-        BufferCapacity = Need;
-      Buffer = static_cast<char *>(std::realloc(Buffer, BufferCapacity));
-      if (Buffer == nullptr)
-        std::abort();
+      if( BufferCapacity < Need ) BufferCapacity = Need;
+      Buffer = static_cast<char*>( std::realloc( Buffer, BufferCapacity ) );
+      if( Buffer == nullptr ) std::abort();
     }
   }
 
-  OutputBuffer &writeUnsigned(uint64_t N, bool isNeg = false) {
+  OutputBuffer& writeUnsigned( uint64_t N, bool isNeg = false )
+  {
     std::array<char, 21> Temp;
-    char *TempPtr = Temp.data() + Temp.size();
+    char*                TempPtr = Temp.data() + Temp.size();
 
     // Output at least one character.
-    do {
-      *--TempPtr = char('0' + N % 10);
+    do
+    {
+      *--TempPtr = char( '0' + N % 10 );
       N /= 10;
-    } while (N);
+    } while( N );
 
     // Add negative sign.
-    if (isNeg)
-      *--TempPtr = '-';
+    if( isNeg ) *--TempPtr = '-';
 
-    return operator+=(
-        std::string_view(TempPtr, Temp.data() + Temp.size() - TempPtr));
+    return operator+=( std::string_view( TempPtr, Temp.data() + Temp.size() - TempPtr ) );
   }
 
 public:
-  OutputBuffer(char *StartBuf, size_t Size)
-      : Buffer(StartBuf), BufferCapacity(Size) {}
-  OutputBuffer(char *StartBuf, size_t *SizePtr)
-      : OutputBuffer(StartBuf, StartBuf ? *SizePtr : 0) {}
-  OutputBuffer() = default;
+  OutputBuffer( char* StartBuf, size_t Size ) : Buffer( StartBuf ), BufferCapacity( Size ) {}
+  OutputBuffer( char* StartBuf, size_t* SizePtr ) : OutputBuffer( StartBuf, StartBuf ? *SizePtr : 0 ) {}
+  OutputBuffer()                                 = default;
   // Non-copyable
-  OutputBuffer(const OutputBuffer &) = delete;
-  OutputBuffer &operator=(const OutputBuffer &) = delete;
+  OutputBuffer( const OutputBuffer& )            = delete;
+  OutputBuffer& operator=( const OutputBuffer& ) = delete;
 
   virtual ~OutputBuffer() = default;
 
-  operator std::string_view() const {
-    return std::string_view(Buffer, CurrentPosition);
-  }
+  operator std::string_view() const { return std::string_view( Buffer, CurrentPosition ); }
 
   /// Called by the demangler when printing the demangle tree. By
-  /// default calls into \c Node::print{Left|Right} but can be overriden
+  /// default calls into \c Node::print{Left|Right} but can be overridden
   /// by clients to track additional state when printing the demangled name.
-  virtual void printLeft(const Node &N);
-  virtual void printRight(const Node &N);
+  virtual void printLeft( const Node& N );
+  virtual void printRight( const Node& N );
 
   /// Called when we write to this object anywhere other than the end.
-  virtual void notifyInsertion(size_t /*Position*/, size_t /*Count*/) {}
+  virtual void notifyInsertion( size_t /*Position*/, size_t /*Count*/ ) {}
 
   /// Called when we make the \c CurrentPosition of this object smaller.
-  virtual void notifyDeletion(size_t /*OldPos*/, size_t /*NewPos*/) {}
+  virtual void notifyDeletion( size_t /*OldPos*/, size_t /*NewPos*/ ) {}
 
   /// If a ParameterPackExpansion (or similar type) is encountered, the offset
   /// into the pack that we're currently printing.
   unsigned CurrentPackIndex = std::numeric_limits<unsigned>::max();
-  unsigned CurrentPackMax = std::numeric_limits<unsigned>::max();
+  unsigned CurrentPackMax   = std::numeric_limits<unsigned>::max();
 
-  struct {
+  struct
+  {
     /// The depth of '(' and ')' inside the currently printed template
     /// arguments.
     unsigned ParenDepth = 0;
@@ -115,127 +113,117 @@ public:
 
   /// Returns true if we're currently between a '(' and ')' when printing
   /// template args.
-  bool isInParensInTemplateArgs() const {
-    return TemplateTracker.ParenDepth > 0;
-  }
+  bool isInParensInTemplateArgs() const { return TemplateTracker.ParenDepth > 0; }
 
   /// Returns true if we're printing template args.
   bool isInsideTemplateArgs() const { return TemplateTracker.InsideTemplate; }
 
-  void printOpen(char Open = '(') {
-    if (isInsideTemplateArgs())
-      TemplateTracker.ParenDepth++;
+  void printOpen( char Open = '(' )
+  {
+    if( isInsideTemplateArgs() ) TemplateTracker.ParenDepth++;
     *this += Open;
   }
-  void printClose(char Close = ')') {
-    if (isInsideTemplateArgs())
-      TemplateTracker.ParenDepth--;
+  void printClose( char Close = ')' )
+  {
+    if( isInsideTemplateArgs() ) TemplateTracker.ParenDepth--;
     *this += Close;
   }
 
-  OutputBuffer &operator+=(std::string_view R) {
-    if (size_t Size = R.size()) {
-      grow(Size);
-      std::memcpy(Buffer + CurrentPosition, &*R.begin(), Size);
+  OutputBuffer& operator+=( std::string_view R )
+  {
+    if( size_t Size = R.size() )
+    {
+      grow( Size );
+      std::memcpy( Buffer + CurrentPosition, &*R.begin(), Size );
       CurrentPosition += Size;
     }
     return *this;
   }
 
-  OutputBuffer &operator+=(char C) {
-    grow(1);
+  OutputBuffer& operator+=( char C )
+  {
+    grow( 1 );
     Buffer[CurrentPosition++] = C;
     return *this;
   }
 
-  OutputBuffer &prepend(std::string_view R) {
+  OutputBuffer& prepend( std::string_view R )
+  {
     size_t Size = R.size();
-    if (!Size)
-      return *this;
+    if( !Size ) return *this;
 
-    grow(Size);
-    std::memmove(Buffer + Size, Buffer, CurrentPosition);
-    std::memcpy(Buffer, &*R.begin(), Size);
+    grow( Size );
+    std::memmove( Buffer + Size, Buffer, CurrentPosition );
+    std::memcpy( Buffer, &*R.begin(), Size );
     CurrentPosition += Size;
 
-    notifyInsertion(/*Position=*/0, /*Count=*/Size);
+    notifyInsertion( /*Position=*/0, /*Count=*/Size );
 
     return *this;
   }
 
-  OutputBuffer &operator<<(std::string_view R) { return (*this += R); }
+  OutputBuffer& operator<<( std::string_view R ) { return ( *this += R ); }
 
-  OutputBuffer &operator<<(char C) { return (*this += C); }
+  OutputBuffer& operator<<( char C ) { return ( *this += C ); }
 
-  OutputBuffer &operator<<(long long N) {
-    return writeUnsigned(static_cast<unsigned long long>(std::abs(N)), N < 0);
-  }
+  OutputBuffer& operator<<( long long N ) { return writeUnsigned( static_cast<unsigned long long>( std::abs( N ) ), N < 0 ); }
 
-  OutputBuffer &operator<<(unsigned long long N) {
-    return writeUnsigned(N, false);
-  }
+  OutputBuffer& operator<<( unsigned long long N ) { return writeUnsigned( N, false ); }
 
-  OutputBuffer &operator<<(long N) {
-    return this->operator<<(static_cast<long long>(N));
-  }
+  OutputBuffer& operator<<( long N ) { return this->operator<<( static_cast<long long>( N ) ); }
 
-  OutputBuffer &operator<<(unsigned long N) {
-    return this->operator<<(static_cast<unsigned long long>(N));
-  }
+  OutputBuffer& operator<<( unsigned long N ) { return this->operator<<( static_cast<unsigned long long>( N ) ); }
 
-  OutputBuffer &operator<<(int N) {
-    return this->operator<<(static_cast<long long>(N));
-  }
+  OutputBuffer& operator<<( int N ) { return this->operator<<( static_cast<long long>( N ) ); }
 
-  OutputBuffer &operator<<(unsigned int N) {
-    return this->operator<<(static_cast<unsigned long long>(N));
-  }
+  OutputBuffer& operator<<( unsigned int N ) { return this->operator<<( static_cast<unsigned long long>( N ) ); }
 
-  void insert(size_t Pos, const char *S, size_t N) {
-    DEMANGLE_ASSERT(Pos <= CurrentPosition, "");
-    if (N == 0)
-      return;
+  void insert( size_t Pos, const char* S, size_t N )
+  {
+    DEMANGLE_ASSERT( Pos <= CurrentPosition, "" );
+    if( N == 0 ) return;
 
-    grow(N);
-    std::memmove(Buffer + Pos + N, Buffer + Pos, CurrentPosition - Pos);
-    std::memcpy(Buffer + Pos, S, N);
+    grow( N );
+    std::memmove( Buffer + Pos + N, Buffer + Pos, CurrentPosition - Pos );
+    std::memcpy( Buffer + Pos, S, N );
     CurrentPosition += N;
 
-    notifyInsertion(Pos, N);
+    notifyInsertion( Pos, N );
   }
 
   size_t getCurrentPosition() const { return CurrentPosition; }
-  void setCurrentPosition(size_t NewPos) {
-    notifyDeletion(CurrentPosition, NewPos);
+  void   setCurrentPosition( size_t NewPos )
+  {
+    notifyDeletion( CurrentPosition, NewPos );
     CurrentPosition = NewPos;
   }
 
-  char back() const {
-    DEMANGLE_ASSERT(CurrentPosition, "");
+  char back() const
+  {
+    DEMANGLE_ASSERT( CurrentPosition, "" );
     return Buffer[CurrentPosition - 1];
   }
 
   bool empty() const { return CurrentPosition == 0; }
 
-  char *getBuffer() { return Buffer; }
-  char *getBufferEnd() { return Buffer + CurrentPosition - 1; }
+  char*  getBuffer() { return Buffer; }
+  char*  getBufferEnd() { return Buffer + CurrentPosition - 1; }
   size_t getBufferCapacity() const { return BufferCapacity; }
 };
 
-template <class T> class ScopedOverride {
-  T &Loc;
-  T Original;
+template<class T> class ScopedOverride
+{
+  T& Loc;
+  T  Original;
 
 public:
-  ScopedOverride(T &Loc_) : ScopedOverride(Loc_, Loc_) {}
+  ScopedOverride( T& Loc_ ) : ScopedOverride( Loc_, Loc_ ) {}
 
-  ScopedOverride(T &Loc_, T NewVal) : Loc(Loc_), Original(Loc_) {
-    Loc_ = std::move(NewVal);
-  }
-  ~ScopedOverride() { Loc = std::move(Original); }
+  ScopedOverride( T& Loc_, T NewVal ) : Loc( Loc_ ), Original( Loc_ ) { Loc_ = std::move( NewVal ); }
+  ~ScopedOverride() { Loc = std::move( Original ); }
 
-  ScopedOverride(const ScopedOverride &) = delete;
-  ScopedOverride &operator=(const ScopedOverride &) = delete;
+  ScopedOverride( const ScopedOverride& )            = delete;
+  ScopedOverride& operator=( const ScopedOverride& ) = delete;
 };
 
 DEMANGLE_NAMESPACE_END

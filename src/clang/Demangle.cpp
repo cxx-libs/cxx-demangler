@@ -11,57 +11,57 @@
 //===----------------------------------------------------------------------===//
 
 #include "llvm/Demangle/Demangle.h"
+
 #include "llvm/Demangle/StringViewExtras.h"
+
 #include <cstdlib>
 #include <string_view>
 
 using llvm::itanium_demangle::starts_with;
 
-std::string llvm::demangle(std::string_view MangledName) {
+std::string llvm::demangle( std::string_view MangledName )
+{
   std::string Result;
 
-  if (nonMicrosoftDemangle(MangledName, Result))
-    return Result;
+  if( nonMicrosoftDemangle( MangledName, Result ) ) return Result;
 
-  if (starts_with(MangledName, '_') &&
-      nonMicrosoftDemangle(MangledName.substr(1), Result,
-                           /*CanHaveLeadingDot=*/false))
-    return Result;
+  if( starts_with( MangledName, '_' ) && nonMicrosoftDemangle( MangledName.substr( 1 ), Result, /*CanHaveLeadingDot=*/false ) ) return Result;
 
-  if (char *Demangled = microsoftDemangle(MangledName, nullptr, nullptr)) {
+  if( char* Demangled = microsoftDemangle( MangledName, nullptr, nullptr ) )
+  {
     Result = Demangled;
-    std::free(Demangled);
-  } else {
+    std::free( Demangled );
+  }
+  else
+  {
     Result = MangledName;
   }
   return Result;
 }
 
-static bool isItaniumEncoding(std::string_view S) {
+static bool isItaniumEncoding( std::string_view S )
+{
   // Itanium demangler supports prefixes with 1-4 underscores.
-  const size_t Pos = S.find_first_not_of('_');
+  const size_t Pos = S.find_first_not_of( '_' );
   return Pos > 0 && Pos <= 4 && S[Pos] == 'Z';
 }
 
-
-bool llvm::nonMicrosoftDemangle(std::string_view MangledName,
-                                std::string &Result, bool CanHaveLeadingDot,
-                                bool ParseParams) {
-  char *Demangled = nullptr;
+bool llvm::nonMicrosoftDemangle( std::string_view MangledName, std::string& Result, bool CanHaveLeadingDot, bool ParseParams )
+{
+  char* Demangled = nullptr;
 
   // Do not consider the dot prefix as part of the demangled symbol name.
-  if (CanHaveLeadingDot && MangledName.size() > 0 && MangledName[0] == '.') {
-    MangledName.remove_prefix(1);
+  if( CanHaveLeadingDot && MangledName.size() > 0 && MangledName[0] == '.' )
+  {
+    MangledName.remove_prefix( 1 );
     Result = ".";
   }
 
-  if (isItaniumEncoding(MangledName))
-    Demangled = itaniumDemangle(MangledName, ParseParams);
+  if( isItaniumEncoding( MangledName ) ) Demangled = itaniumDemangle( MangledName, ParseParams );
 
-  if (!Demangled)
-    return false;
+  if( !Demangled ) return false;
 
   Result += Demangled;
-  std::free(Demangled);
+  std::free( Demangled );
   return true;
 }
