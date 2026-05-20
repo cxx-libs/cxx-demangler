@@ -1,7 +1,6 @@
 add_library(cxx_demangler SHARED
     demangler.cpp
     clang/Demangle.cpp
-    clang/cxa_demangle.cpp
     clang/ItaniumDemangle.cpp
     clang/MicrosoftDemangle.cpp
     clang/MicrosoftDemangleNodes.cpp
