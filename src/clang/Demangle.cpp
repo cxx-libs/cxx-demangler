@@ -17,7 +17,7 @@
 #include <cstdlib>
 #include <string_view>
 
-std::string llvm::demangle( std::string_view MangledName )
+std::string cxx::demangler::backend::clang::demangle( const std::string_view MangledName )
 {
   std::string Result;
 
@@ -25,7 +25,7 @@ std::string llvm::demangle( std::string_view MangledName )
 
   if( cxx::demangler::backend::clang::starts_with( MangledName, '_' ) && nonMicrosoftDemangle( MangledName.substr( 1 ), Result, /*CanHaveLeadingDot=*/false ) ) return Result;
 
-  if( char* Demangled = microsoftDemangle( MangledName, nullptr, nullptr ) )
+  if( char* Demangled = cxx::demangler::backend::clang::microsoftDemangle( MangledName, nullptr, nullptr ) )
   {
     Result = Demangled;
     std::free( Demangled );
@@ -37,16 +37,16 @@ std::string llvm::demangle( std::string_view MangledName )
   return Result;
 }
 
-static bool isItaniumEncoding( std::string_view S )
+static bool isItaniumEncoding( const std::string_view S )
 {
   // Itanium demangler supports prefixes with 1-4 underscores.
   const size_t Pos = S.find_first_not_of( '_' );
   return Pos > 0 && Pos <= 4 && S[Pos] == 'Z';
 }
 
-bool llvm::nonMicrosoftDemangle( std::string_view MangledName, std::string& Result, bool CanHaveLeadingDot, bool ParseParams )
+bool cxx::demangler::backend::clang::nonMicrosoftDemangle( std::string_view MangledName, std::string& Result, const bool CanHaveLeadingDot, const bool ParseParams )
 {
-  char* Demangled = nullptr;
+  char* Demangled{ nullptr };
 
   // Do not consider the dot prefix as part of the demangled symbol name.
   if( CanHaveLeadingDot && MangledName.size() > 0 && MangledName[0] == '.' )

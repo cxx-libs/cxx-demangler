@@ -27,19 +27,20 @@ using namespace llvm::itanium_demangle;
 
 namespace
 {
+
 class BumpPointerAllocator
 {
   struct BlockMeta
   {
-    BlockMeta* Next;
-    size_t     Current;
+    BlockMeta* Next{ nullptr };
+    size_t     Current{ 0 };
   };
 
-  static constexpr size_t AllocSize       = 4096;
-  static constexpr size_t UsableAllocSize = AllocSize - sizeof( BlockMeta );
+  static constexpr std::size_t AllocSize{ 4096 };
+  static constexpr std::size_t UsableAllocSize{ AllocSize - sizeof( BlockMeta ) };
 
   alignas( long double ) char InitialBuffer[AllocSize];
-  BlockMeta* BlockList = nullptr;
+  BlockMeta* BlockList{ nullptr };
 
   void grow()
   {
@@ -48,7 +49,7 @@ class BumpPointerAllocator
     BlockList = new( NewMeta ) BlockMeta{ BlockList, 0 };
   }
 
-  void* allocateMassive( size_t NBytes )
+  void* allocateMassive( std::size_t NBytes )
   {
     NBytes += sizeof( BlockMeta );
     BlockMeta* NewMeta = reinterpret_cast<BlockMeta*>( std::malloc( NBytes ) );
@@ -107,6 +108,7 @@ using Demangler = llvm::itanium_demangle::ManglingParser<DefaultAllocator>;
 
 namespace
 {
+
 enum : int
 {
   demangle_invalid_args         = -3,
@@ -145,7 +147,7 @@ extern "C" _LIBCXXABI_FUNC_VIS char* __cxa_demangle( const char* MangledName, ch
     return nullptr;
   }
 
-  int                           InternalStatus = demangle_success;
+  int                           InternalStatus{ demangle_success };
   Demangler                     Parser( MangledName, MangledName + std::strlen( MangledName ) );
   llvm::itanium_demangle::Node* AST = Parser.parse();
 

@@ -153,7 +153,7 @@ enum class FunctionIdentifierCodeGroup
 // It also has a set of functions to convert Type instances to strings.
 class Demangler
 {
-  friend std::optional<size_t> llvm::getArm64ECInsertionPointInMangledName( std::string_view MangledName );
+  friend std::optional<size_t> cxx::demangler::backend::clang::getArm64ECInsertionPointInMangledName( std::string_view MangledName );
 
 public:
   Demangler()          = default;

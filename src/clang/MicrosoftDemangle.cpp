@@ -2269,7 +2269,7 @@ void Demangler::dumpBackReferences()
   if( Backrefs.NamesCount > 0 ) std::printf( "\n" );
 }
 
-std::optional<size_t> llvm::getArm64ECInsertionPointInMangledName( std::string_view MangledName )
+std::optional<size_t> cxx::demangler::backend::clang::getArm64ECInsertionPointInMangledName( std::string_view MangledName )
 {
   std::string_view ProcessedName{ MangledName };
 
@@ -2285,7 +2285,7 @@ std::optional<size_t> llvm::getArm64ECInsertionPointInMangledName( std::string_v
   return MangledName.length() - ProcessedName.length();
 }
 
-char* llvm::microsoftDemangle( std::string_view MangledName, size_t* NMangled, int* Status, MSDemangleFlags Flags )
+char* cxx::demangler::backend::clang::microsoftDemangle( std::string_view MangledName, size_t* NMangled, int* Status, MSDemangleFlags Flags )
 {
   Demangler D;
 
@@ -2293,18 +2293,18 @@ char* llvm::microsoftDemangle( std::string_view MangledName, size_t* NMangled, i
   SymbolNode*      AST = D.parse( Name );
   if( !D.Error && NMangled ) *NMangled = MangledName.size() - Name.size();
 
-  if( Flags & MSDF_DumpBackrefs ) D.dumpBackReferences();
+  if( Flags & cxx::demangler::backend::clang::MSDF_DumpBackrefs ) D.dumpBackReferences();
 
   OutputFlags OF = OF_Default;
-  if( Flags & MSDF_NoCallingConvention ) OF = OutputFlags( OF | OF_NoCallingConvention );
-  if( Flags & MSDF_NoAccessSpecifier ) OF = OutputFlags( OF | OF_NoAccessSpecifier );
-  if( Flags & MSDF_NoReturnType ) OF = OutputFlags( OF | OF_NoReturnType );
-  if( Flags & MSDF_NoMemberType ) OF = OutputFlags( OF | OF_NoMemberType );
-  if( Flags & MSDF_NoVariableType ) OF = OutputFlags( OF | OF_NoVariableType );
+  if( Flags & cxx::demangler::backend::clang::MSDF_NoCallingConvention ) OF = OutputFlags( OF | OF_NoCallingConvention );
+  if( Flags & cxx::demangler::backend::clang::MSDF_NoAccessSpecifier ) OF = OutputFlags( OF | OF_NoAccessSpecifier );
+  if( Flags & cxx::demangler::backend::clang::MSDF_NoReturnType ) OF = OutputFlags( OF | OF_NoReturnType );
+  if( Flags & cxx::demangler::backend::clang::MSDF_NoMemberType ) OF = OutputFlags( OF | OF_NoMemberType );
+  if( Flags & cxx::demangler::backend::clang::MSDF_NoVariableType ) OF = OutputFlags( OF | OF_NoVariableType );
 
-  int   InternalStatus = demangle_success;
+  int   InternalStatus = cxx::demangler::backend::clang::demangle_success;
   char* Buf;
-  if( D.Error ) InternalStatus = demangle_invalid_mangled_name;
+  if( D.Error ) InternalStatus = cxx::demangler::backend::clang::demangle_invalid_mangled_name;
   else
   {
     llvm::itanium_demangle::OutputBuffer OB;
@@ -2314,5 +2314,5 @@ char* llvm::microsoftDemangle( std::string_view MangledName, size_t* NMangled, i
   }
 
   if( Status ) *Status = InternalStatus;
-  return InternalStatus == demangle_success ? Buf : nullptr;
+  return InternalStatus == cxx::demangler::backend::clang::demangle_success ? Buf : nullptr;
 }

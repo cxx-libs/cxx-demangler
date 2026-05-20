@@ -51,7 +51,7 @@ std::string cxx::demangler::Demangler::call( const std::string_view mangled, cxx
     }
     case cxx::demangler::Demangler::Backend::clang:
     {
-      return llvm::demangle( mangled );
+      return cxx::demangler::backend::clang::demangle( mangled );
     }
     default: return std::string( mangled );
   }

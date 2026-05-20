@@ -14,7 +14,7 @@
 #include <string>
 #include <string_view>
 
-namespace llvm
+namespace cxx::demangler::backend::clang
 {
 /// This is a llvm local version of __cxa_demangle. Other than the name and
 /// being in the llvm namespace it is identical.
@@ -64,9 +64,9 @@ DEMANGLE_ABI std::optional<size_t> getArm64ECInsertionPointInMangledName( std::s
 /// \param MangledName - reference to string to demangle.
 /// \returns - the demangled string, or a copy of the input string if no
 /// demangling occurred.
-DEMANGLE_ABI std::string demangle( std::string_view MangledName );
+DEMANGLE_ABI std::string demangle( const std::string_view MangledName );
 
-DEMANGLE_ABI bool nonMicrosoftDemangle( std::string_view MangledName, std::string& Result, bool CanHaveLeadingDot = true, bool ParseParams = true );
+DEMANGLE_ABI bool nonMicrosoftDemangle( std::string_view MangledName, std::string& Result, const bool CanHaveLeadingDot = true, const bool ParseParams = true );
 
 /// "Partial" demangler. This supports demangling a string into an AST
 /// (typically an intermediate stage in itaniumDemangle) and querying certain
@@ -132,4 +132,4 @@ private:
   void* RootNode{ nullptr };
   void* Context{ nullptr };
 };
-}  // namespace llvm
+}  // namespace cxx::demangler::backend::clang

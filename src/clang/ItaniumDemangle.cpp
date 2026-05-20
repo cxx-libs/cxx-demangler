@@ -58,6 +58,7 @@ const char* itanium_demangle::parse_discriminator( const char* first, const char
 
 namespace
 {
+
 class BumpPointerAllocator
 {
   struct BlockMeta
@@ -136,7 +137,7 @@ public:
 
 using Demangler = itanium_demangle::ManglingParser<DefaultAllocator>;
 
-char* llvm::itaniumDemangle( std::string_view MangledName, bool ParseParams )
+char* cxx::demangler::backend::clang::itaniumDemangle( const std::string_view MangledName, const bool ParseParams )
 {
   if( MangledName.empty() ) return nullptr;
 
@@ -150,13 +151,13 @@ char* llvm::itaniumDemangle( std::string_view MangledName, bool ParseParams )
   return OB.getBuffer();
 }
 
-ItaniumPartialDemangler::ItaniumPartialDemangler() : RootNode( nullptr ), Context( new Demangler{ nullptr, nullptr } ) {}
+cxx::demangler::backend::clang::ItaniumPartialDemangler::ItaniumPartialDemangler() : RootNode( nullptr ), Context( new Demangler{ nullptr, nullptr } ) {}
 
-ItaniumPartialDemangler::~ItaniumPartialDemangler() { delete static_cast<Demangler*>( Context ); }
+cxx::demangler::backend::clang::ItaniumPartialDemangler::~ItaniumPartialDemangler() { delete static_cast<Demangler*>( Context ); }
 
-ItaniumPartialDemangler::ItaniumPartialDemangler( ItaniumPartialDemangler&& Other ) : RootNode( Other.RootNode ), Context( Other.Context ) { Other.Context = Other.RootNode = nullptr; }
+cxx::demangler::backend::clang::ItaniumPartialDemangler::ItaniumPartialDemangler( ItaniumPartialDemangler&& Other ) : RootNode( Other.RootNode ), Context( Other.Context ) { Other.Context = Other.RootNode = nullptr; }
 
-ItaniumPartialDemangler& ItaniumPartialDemangler::operator=( ItaniumPartialDemangler&& Other )
+cxx::demangler::backend::clang::ItaniumPartialDemangler& cxx::demangler::backend::clang::ItaniumPartialDemangler::operator=( ItaniumPartialDemangler&& Other )
 {
   std::swap( RootNode, Other.RootNode );
   std::swap( Context, Other.Context );
@@ -164,7 +165,7 @@ ItaniumPartialDemangler& ItaniumPartialDemangler::operator=( ItaniumPartialDeman
 }
 
 // Demangle MangledName into an AST, storing it into this->RootNode.
-bool ItaniumPartialDemangler::partialDemangle( const char* MangledName )
+bool cxx::demangler::backend::clang::ItaniumPartialDemangler::partialDemangle( const char* MangledName )
 {
   Demangler* Parser = static_cast<Demangler*>( Context );
   size_t     Len    = std::strlen( MangledName );
@@ -186,7 +187,7 @@ static char* printNode( const Node* RootNode, char* Buf, size_t* N )
   return printNode( RootNode, OB, N );
 }
 
-char* ItaniumPartialDemangler::getFunctionBaseName( char* Buf, size_t* N ) const
+char* cxx::demangler::backend::clang::ItaniumPartialDemangler::getFunctionBaseName( char* Buf, size_t* N ) const
 {
   if( !isFunction() ) return nullptr;
 
@@ -206,7 +207,7 @@ char* ItaniumPartialDemangler::getFunctionBaseName( char* Buf, size_t* N ) const
   }
 }
 
-char* ItaniumPartialDemangler::getFunctionDeclContextName( char* Buf, size_t* N ) const
+char* cxx::demangler::backend::clang::ItaniumPartialDemangler::getFunctionDeclContextName( char* Buf, size_t* N ) const
 {
   if( !isFunction() ) return nullptr;
   const Node* Name = static_cast<const FunctionEncoding*>( RootNode )->getName();
@@ -249,14 +250,14 @@ KeepGoingLocalFunction:
   return OB.getBuffer();
 }
 
-char* ItaniumPartialDemangler::getFunctionName( char* Buf, size_t* N ) const
+char* cxx::demangler::backend::clang::ItaniumPartialDemangler::getFunctionName( char* Buf, size_t* N ) const
 {
   if( !isFunction() ) return nullptr;
   auto* Name = static_cast<FunctionEncoding*>( RootNode )->getName();
   return printNode( Name, Buf, N );
 }
 
-char* ItaniumPartialDemangler::getFunctionParameters( char* Buf, size_t* N ) const
+char* cxx::demangler::backend::clang::ItaniumPartialDemangler::getFunctionParameters( char* Buf, size_t* N ) const
 {
   if( !isFunction() ) return nullptr;
   NodeArray Params = static_cast<FunctionEncoding*>( RootNode )->getParams();
@@ -271,7 +272,7 @@ char* ItaniumPartialDemangler::getFunctionParameters( char* Buf, size_t* N ) con
   return OB.getBuffer();
 }
 
-char* ItaniumPartialDemangler::getFunctionReturnType( char* Buf, size_t* N ) const
+char* cxx::demangler::backend::clang::ItaniumPartialDemangler::getFunctionReturnType( char* Buf, size_t* N ) const
 {
   if( !isFunction() ) return nullptr;
 
@@ -284,22 +285,22 @@ char* ItaniumPartialDemangler::getFunctionReturnType( char* Buf, size_t* N ) con
   return OB.getBuffer();
 }
 
-char* ItaniumPartialDemangler::finishDemangle( char* Buf, size_t* N ) const { return printNode( static_cast<Node*>( RootNode ), Buf, N ); }
+char* cxx::demangler::backend::clang::ItaniumPartialDemangler::finishDemangle( char* Buf, size_t* N ) const { return printNode( static_cast<Node*>( RootNode ), Buf, N ); }
 
-char* ItaniumPartialDemangler::finishDemangle( void* OB ) const
+char* cxx::demangler::backend::clang::ItaniumPartialDemangler::finishDemangle( void* OB ) const
 {
   return printNode( static_cast<Node*>( RootNode ), *static_cast<OutputBuffer*>( OB ),
                     /*N=*/nullptr );
 }
 
-bool ItaniumPartialDemangler::hasFunctionQualifiers() const
+bool cxx::demangler::backend::clang::ItaniumPartialDemangler::hasFunctionQualifiers() const
 {
   if( !isFunction() ) return false;
   auto* E = static_cast<const FunctionEncoding*>( RootNode );
   return E->getCVQuals() != QualNone || E->getRefQual() != FrefQualNone;
 }
 
-bool ItaniumPartialDemangler::isCtorOrDtor() const
+bool cxx::demangler::backend::clang::ItaniumPartialDemangler::isCtorOrDtor() const
 {
   const Node* N = static_cast<const Node*>( RootNode );
   while( N )
@@ -320,12 +321,12 @@ bool ItaniumPartialDemangler::isCtorOrDtor() const
   return false;
 }
 
-bool ItaniumPartialDemangler::isFunction() const { return static_cast<const Node*>( RootNode )->getKind() == Node::KFunctionEncoding; }
+bool cxx::demangler::backend::clang::ItaniumPartialDemangler::isFunction() const { return static_cast<const Node*>( RootNode )->getKind() == Node::KFunctionEncoding; }
 
-bool ItaniumPartialDemangler::isSpecialName() const
+bool cxx::demangler::backend::clang::ItaniumPartialDemangler::isSpecialName() const
 {
   auto K = static_cast<const Node*>( RootNode )->getKind();
   return K == Node::KSpecialName || K == Node::KCtorVtableSpecialName;
 }
 
-bool ItaniumPartialDemangler::isData() const { return !isFunction() && !isSpecialName(); }
+bool cxx::demangler::backend::clang::ItaniumPartialDemangler::isData() const { return !isFunction() && !isSpecialName(); }

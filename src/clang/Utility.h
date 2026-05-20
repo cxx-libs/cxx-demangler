@@ -30,18 +30,17 @@ namespace itanium_demangle
 
 class Node;
 
-// Stream that AST nodes write their string representation into after the AST
-// has been parsed.
+// Stream that AST nodes write their string representation into after the AST has been parsed.
 class OutputBuffer
 {
-  char*  Buffer          = nullptr;
-  size_t CurrentPosition = 0;
-  size_t BufferCapacity  = 0;
+  char*       Buffer{ nullptr };
+  std::size_t CurrentPosition{ 0 };
+  std::size_t BufferCapacity{ 0 };
 
   // Ensure there are at least N more positions in the buffer.
-  void grow( size_t N )
+  void grow( const std::size_t N )
   {
-    size_t Need = N + CurrentPosition;
+    std::size_t Need = N + CurrentPosition;
     if( Need > BufferCapacity )
     {
       // Reduce the number of reallocations, with a bit of hysteresis. The
@@ -55,7 +54,7 @@ class OutputBuffer
     }
   }
 
-  OutputBuffer& writeUnsigned( uint64_t N, bool isNeg = false )
+  OutputBuffer& writeUnsigned( std::uint64_t N, const bool isNeg = false )
   {
     std::array<char, 21> Temp;
     char*                TempPtr = Temp.data() + Temp.size();
@@ -74,14 +73,14 @@ class OutputBuffer
   }
 
 public:
-  OutputBuffer( char* StartBuf, size_t Size ) : Buffer( StartBuf ), BufferCapacity( Size ) {}
+  OutputBuffer( char* StartBuf, const std::size_t Size ) : Buffer( StartBuf ), BufferCapacity( Size ) {}
   OutputBuffer( char* StartBuf, size_t* SizePtr ) : OutputBuffer( StartBuf, StartBuf ? *SizePtr : 0 ) {}
   OutputBuffer()                                 = default;
   // Non-copyable
   OutputBuffer( const OutputBuffer& )            = delete;
   OutputBuffer& operator=( const OutputBuffer& ) = delete;
 
-  virtual ~OutputBuffer() = default;
+  virtual ~OutputBuffer() noexcept = default;
 
   operator std::string_view() const { return std::string_view( Buffer, CurrentPosition ); }
 
@@ -104,17 +103,15 @@ public:
 
   struct
   {
-    /// The depth of '(' and ')' inside the currently printed template
-    /// arguments.
-    unsigned ParenDepth = 0;
+    /// The depth of '(' and ')' inside the currently printed template arguments.
+    unsigned ParenDepth{ 0 };
 
     /// True if we're currently printing a template argument.
-    bool InsideTemplate = false;
+    bool InsideTemplate{ false };
   } TemplateTracker;
 
-  /// Returns true if we're currently between a '(' and ')' when printing
-  /// template args.
-  bool isInParensInTemplateArgs() const { return TemplateTracker.ParenDepth > 0; }
+  /// Returns true if we're currently between a '(' and ')' when printing template args.
+  bool isInParensInTemplateArgs() const noexcept { return TemplateTracker.ParenDepth > 0; }
 
   /// Returns true if we're printing template args.
   bool isInsideTemplateArgs() const { return TemplateTracker.InsideTemplate; }
@@ -124,6 +121,7 @@ public:
     if( isInsideTemplateArgs() ) TemplateTracker.ParenDepth++;
     *this += Open;
   }
+
   void printClose( char Close = ')' )
   {
     if( isInsideTemplateArgs() ) TemplateTracker.ParenDepth--;
@@ -141,7 +139,7 @@ public:
     return *this;
   }
 
-  OutputBuffer& operator+=( char C )
+  OutputBuffer& operator+=( const char C )
   {
     grow( 1 );
     Buffer[CurrentPosition++] = C;
@@ -150,7 +148,7 @@ public:
 
   OutputBuffer& prepend( std::string_view R )
   {
-    size_t Size = R.size();
+    std::size_t Size = R.size();
     if( !Size ) return *this;
 
     grow( Size );
@@ -163,23 +161,23 @@ public:
     return *this;
   }
 
-  OutputBuffer& operator<<( std::string_view R ) { return ( *this += R ); }
+  OutputBuffer& operator<<( const std::string_view R ) { return ( *this += R ); }
 
-  OutputBuffer& operator<<( char C ) { return ( *this += C ); }
+  OutputBuffer& operator<<( const char C ) { return ( *this += C ); }
 
-  OutputBuffer& operator<<( long long N ) { return writeUnsigned( static_cast<unsigned long long>( std::abs( N ) ), N < 0 ); }
+  OutputBuffer& operator<<( const long long N ) { return writeUnsigned( static_cast<unsigned long long>( std::abs( N ) ), N < 0 ); }
 
-  OutputBuffer& operator<<( unsigned long long N ) { return writeUnsigned( N, false ); }
+  OutputBuffer& operator<<( const unsigned long long N ) { return writeUnsigned( N, false ); }
 
-  OutputBuffer& operator<<( long N ) { return this->operator<<( static_cast<long long>( N ) ); }
+  OutputBuffer& operator<<( const long N ) { return this->operator<<( static_cast<long long>( N ) ); }
 
-  OutputBuffer& operator<<( unsigned long N ) { return this->operator<<( static_cast<unsigned long long>( N ) ); }
+  OutputBuffer& operator<<( const unsigned long N ) { return this->operator<<( static_cast<unsigned long long>( N ) ); }
 
-  OutputBuffer& operator<<( int N ) { return this->operator<<( static_cast<long long>( N ) ); }
+  OutputBuffer& operator<<( const int N ) { return this->operator<<( static_cast<long long>( N ) ); }
 
-  OutputBuffer& operator<<( unsigned int N ) { return this->operator<<( static_cast<unsigned long long>( N ) ); }
+  OutputBuffer& operator<<( const unsigned int N ) { return this->operator<<( static_cast<unsigned long long>( N ) ); }
 
-  void insert( size_t Pos, const char* S, size_t N )
+  void insert( std::size_t Pos, const char* S, std::size_t N )
   {
     if( N == 0 ) return;
 
@@ -191,20 +189,21 @@ public:
     notifyInsertion( Pos, N );
   }
 
-  size_t getCurrentPosition() const { return CurrentPosition; }
-  void   setCurrentPosition( size_t NewPos )
+  std::size_t getCurrentPosition() const noexcept { return CurrentPosition; }
+
+  void setCurrentPosition( const std::size_t NewPos )
   {
     notifyDeletion( CurrentPosition, NewPos );
     CurrentPosition = NewPos;
   }
 
-  char back() const { return Buffer[CurrentPosition - 1]; }
+  char back() const noexcept { return Buffer[CurrentPosition - 1]; }
 
-  bool empty() const { return CurrentPosition == 0; }
+  bool empty() const noexcept { return CurrentPosition == 0; }
 
-  char*  getBuffer() { return Buffer; }
-  char*  getBufferEnd() { return Buffer + CurrentPosition - 1; }
-  size_t getBufferCapacity() const { return BufferCapacity; }
+  char*       getBuffer() const noexcept { return Buffer; }
+  char*       getBufferEnd() const noexcept { return Buffer + CurrentPosition - 1; }
+  std::size_t getBufferCapacity() const noexcept { return BufferCapacity; }
 };
 
 template<class T> class ScopedOverride
