@@ -35,7 +35,8 @@
   #pragma clang diagnostic ignored "-Wunused-template"
 #endif
 
-DEMANGLE_NAMESPACE_BEGIN
+namespace llvm::itanium_demangle
+{
 
 template<class T, size_t N> class PODSmallVector
 {
@@ -5822,7 +5823,7 @@ inline void OutputBuffer::printLeft( const Node& N ) { N.printLeft( *this ); }
 
 inline void OutputBuffer::printRight( const Node& N ) { N.printRight( *this ); }
 
-DEMANGLE_NAMESPACE_END
+}  // namespace llvm::itanium_demangle
 
 #if defined( __clang__ )
   #pragma clang diagnostic pop

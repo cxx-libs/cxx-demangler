@@ -12,11 +12,9 @@
 // the copy.  See README.txt for more details.
 //
 //===----------------------------------------------------------------------===//
+#pragma
 
-#ifndef DEMANGLE_UTILITY_H
-#define DEMANGLE_UTILITY_H
-
-#include "DemangleConfig.h"
+//#include "DemangleConfig.h"
 
 #include <array>
 #include <cstdint>
@@ -25,7 +23,10 @@
 #include <limits>
 #include <string_view>
 
-DEMANGLE_NAMESPACE_BEGIN
+namespace llvm
+{
+namespace itanium_demangle
+{
 
 class Node;
 
@@ -221,6 +222,5 @@ public:
   ScopedOverride& operator=( const ScopedOverride& ) = delete;
 };
 
-DEMANGLE_NAMESPACE_END
-
-#endif
+}  // namespace itanium_demangle
+}  // namespace llvm
