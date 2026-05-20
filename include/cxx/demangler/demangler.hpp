@@ -17,7 +17,7 @@ public:
     clang,
   };
   static std::size_t preallocate_buffers( const std::size_t size ) noexcept;
-  //static std::size_t set_max_size(const std::size_t size) noexcept { max_capacity= size; }
+  static void        set_max_size( const std::size_t size ) noexcept { max_capacity = size; }
   std::string        operator()( const std::string_view mangled, const Backend backend = Backend::clang ) const noexcept { return call( mangled, backend ); }
   static std::string call( const std::string_view mangled, const Backend backend = Backend::clang ) noexcept;
 
