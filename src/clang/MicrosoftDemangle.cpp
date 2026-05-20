@@ -22,7 +22,6 @@
 #include "Utility.h"
 
 #include <cctype>
-#include <cstdio>
 #include <optional>
 #include <string_view>
 #include <tuple>
@@ -1584,7 +1583,7 @@ FuncClass Demangler::demangleFunctionClass( std::string_view& MangledName )
   return FC_Public;
 }
 
-CallingConv Demangler::demangleCallingConvention( std::string_view& MangledName )
+CallingConv Demangler::demangleCallingConvention( std::string_view& MangledName ) noexcept
 {
   if( MangledName.empty() )
   {
@@ -1618,7 +1617,7 @@ CallingConv Demangler::demangleCallingConvention( std::string_view& MangledName 
   return CallingConv::None;
 }
 
-StorageClass Demangler::demangleVariableStorageClass( std::string_view& MangledName )
+StorageClass Demangler::demangleVariableStorageClass( std::string_view& MangledName ) noexcept
 {
   const char F = MangledName.front();
   MangledName.remove_prefix( 1 );
@@ -2245,30 +2244,6 @@ NodeArrayNode* Demangler::demangleTemplateParameterList( std::string_view& Mangl
   return nodeListToNodeArray( Arena, Head, Count );
 }
 
-void Demangler::dumpBackReferences()
-{
-  std::printf( "%d function parameter backreferences\n", (int)Backrefs.FunctionParamCount );
-
-  // Create an output stream so we can render each type.
-  llvm::itanium_demangle::OutputBuffer OB;
-  for( size_t I = 0; I < Backrefs.FunctionParamCount; ++I )
-  {
-    OB.setCurrentPosition( 0 );
-
-    TypeNode* T = Backrefs.FunctionParams[I];
-    T->output( OB, OF_Default );
-
-    std::string_view B = OB;
-    std::printf( "  [%d] - %.*s\n", (int)I, (int)B.size(), B.data() );
-  }
-  std::free( OB.getBuffer() );
-
-  if( Backrefs.FunctionParamCount > 0 ) std::printf( "\n" );
-  std::printf( "%d name backreferences\n", (int)Backrefs.NamesCount );
-  for( size_t I = 0; I < Backrefs.NamesCount; ++I ) { std::printf( "  [%d] - %.*s\n", (int)I, (int)Backrefs.Names[I]->Name.size(), Backrefs.Names[I]->Name.data() ); }
-  if( Backrefs.NamesCount > 0 ) std::printf( "\n" );
-}
-
 std::optional<std::size_t> cxx::demangler::backend::clang::getArm64ECInsertionPointInMangledName( const std::string_view MangledName )
 {
   std::string_view ProcessedName{ MangledName };
@@ -2292,8 +2267,6 @@ char* cxx::demangler::backend::clang::microsoftDemangle( std::string_view Mangle
   std::string_view Name{ MangledName };
   SymbolNode*      AST = D.parse( Name );
   if( !D.Error && NMangled ) *NMangled = MangledName.size() - Name.size();
-
-  if( Flags & cxx::demangler::backend::clang::MSDF_DumpBackrefs ) D.dumpBackReferences();
 
   OutputFlags OF = OF_Default;
   if( Flags & cxx::demangler::backend::clang::MSDF_NoCallingConvention ) OF = OutputFlags( OF | OF_NoCallingConvention );

@@ -32,7 +32,7 @@ namespace ms_demangle
 {
 
 // Storage classes
-enum Qualifiers : uint8_t
+enum Qualifiers : std::uint8_t
 {
   Q_None      = 0,
   Q_Const     = 1 << 0,
@@ -44,7 +44,7 @@ enum Qualifiers : uint8_t
   Q_Pointer64 = 1 << 6
 };
 
-enum class StorageClass : uint8_t
+enum class StorageClass : std::uint8_t
 {
   None,
   PrivateStatic,
@@ -54,14 +54,15 @@ enum class StorageClass : uint8_t
   FunctionLocalStatic,
 };
 
-enum class PointerAffinity
+enum class PointerAffinity : std::uint8_t
 {
   None,
   Pointer,
   Reference,
   RValueReference
 };
-enum class FunctionRefQualifier
+
+enum class FunctionRefQualifier : std::uint8_t
 {
   None,
   Reference,
@@ -69,7 +70,7 @@ enum class FunctionRefQualifier
 };
 
 // Calling conventions
-enum class CallingConv : uint8_t
+enum class CallingConv : std::uint8_t
 {
   None,
   Cdecl,
@@ -85,7 +86,7 @@ enum class CallingConv : uint8_t
   SwiftAsync,  // Clang-only
 };
 
-enum class ReferenceKind : uint8_t
+enum class ReferenceKind : std::uint8_t
 {
   None,
   LValueRef,
@@ -104,7 +105,7 @@ enum OutputFlags
 };
 
 // Types
-enum class PrimitiveKind
+enum class PrimitiveKind : std::uint8_t
 {
   Void,
   Bool,
@@ -131,7 +132,7 @@ enum class PrimitiveKind
   DecltypeAuto,
 };
 
-enum class CharKind
+enum class CharKind : std::uint8_t
 {
   Char,
   Char16,
@@ -139,7 +140,7 @@ enum class CharKind
   Wchar,
 };
 
-enum class IntrinsicFunctionKind : uint8_t
+enum class IntrinsicFunctionKind : std::uint8_t
 {
   None,
   New,                         // ?2 # operator new
@@ -209,7 +210,7 @@ enum class IntrinsicFunctionKind : uint8_t
   MaxIntrinsic
 };
 
-enum class SpecialIntrinsicKind
+enum class SpecialIntrinsicKind : std::uint8_t
 {
   None,
   Vftable,
@@ -232,7 +233,7 @@ enum class SpecialIntrinsicKind
 };
 
 // Function classes
-enum FuncClass : uint16_t
+enum FuncClass : std::uint16_t
 {
   FC_None                = 0,
   FC_Public              = 1 << 0,
@@ -249,7 +250,7 @@ enum FuncClass : uint16_t
   FC_StaticThisAdjust    = 1 << 11,
 };
 
-enum class TagKind
+enum class TagKind : std::uint8_t
 {
   Class,
   Struct,
@@ -257,7 +258,7 @@ enum class TagKind
   Enum
 };
 
-enum class NodeKind
+enum class NodeKind : std::uint8_t
 {
   Unknown,
 
@@ -309,7 +310,7 @@ enum class NodeKind
 
 struct Node
 {
-  explicit Node( NodeKind K ) : Kind( K ) {}
+  explicit Node( const NodeKind K ) : Kind( K ) {}
   virtual ~Node() = default;
 
   NodeKind kind() const { return Kind; }
@@ -391,27 +392,27 @@ struct FunctionSignatureNode : public TypeNode
 
   // Valid if this FunctionTypeNode is the Pointee of a PointerType or
   // MemberPointerType.
-  PointerAffinity Affinity = PointerAffinity::None;
+  PointerAffinity Affinity{ PointerAffinity::None };
 
   // The function's calling convention.
-  CallingConv CallConvention = CallingConv::None;
+  CallingConv CallConvention{ CallingConv::None };
 
   // Function flags (global, public, etc)
-  FuncClass FunctionClass = FC_Global;
+  FuncClass FunctionClass{ FC_Global };
 
-  FunctionRefQualifier RefQualifier = FunctionRefQualifier::None;
+  FunctionRefQualifier RefQualifier{ FunctionRefQualifier::None };
 
   // The return type of the function.
-  TypeNode* ReturnType = nullptr;
+  TypeNode* ReturnType{ nullptr };
 
   // True if this is a C-style ... varargs function.
-  bool IsVariadic = false;
+  bool IsVariadic{ false };
 
   // Function parameters
-  NodeArrayNode* Params = nullptr;
+  NodeArrayNode* Params{ nullptr };
 
   // True if the function type is noexcept.
-  bool IsNoexcept = false;
+  bool IsNoexcept{ false };
 };
 
 struct IdentifierNode : public Node
@@ -420,7 +421,7 @@ struct IdentifierNode : public Node
 
   static bool classof( const Node* N ) { return N->kind() >= NodeKind::IdentifierStart && N->kind() <= NodeKind::IdentifierEnd; }
 
-  NodeArrayNode* TemplateParams = nullptr;
+  NodeArrayNode* TemplateParams{ nullptr };
 
 protected:
   void outputTemplateParameters( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const;
@@ -434,7 +435,7 @@ struct VcallThunkIdentifierNode : public IdentifierNode
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::VcallThunkIdentifier; }
 
-  uint64_t OffsetInVTable = 0;
+  std::uint64_t OffsetInVTable{ 0 };
 };
 
 struct DynamicStructorIdentifierNode : public IdentifierNode
@@ -491,8 +492,8 @@ struct LocalStaticGuardIdentifierNode : public IdentifierNode
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::LocalStaticGuardIdentifier; }
 
-  bool     IsThread   = false;
-  uint32_t ScopeIndex = 0;
+  bool          IsThread{ false };
+  std::uint32_t ScopeIndex{ 0 };
 };
 
 struct ConversionOperatorIdentifierNode : public IdentifierNode
@@ -655,10 +656,10 @@ struct TemplateParameterReferenceNode : public Node
 
   SymbolNode* Symbol = nullptr;
 
-  int                    ThunkOffsetCount = 0;
-  std::array<int64_t, 3> ThunkOffsets;
-  PointerAffinity        Affinity        = PointerAffinity::None;
-  bool                   IsMemberPointer = false;
+  int                         ThunkOffsetCount = 0;
+  std::array<std::int64_t, 3> ThunkOffsets;
+  PointerAffinity             Affinity        = PointerAffinity::None;
+  bool                        IsMemberPointer = false;
 };
 
 struct IntegerLiteralNode : public Node
@@ -670,8 +671,8 @@ struct IntegerLiteralNode : public Node
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::IntegerLiteral; }
 
-  uint64_t Value      = 0;
-  bool     IsNegative = false;
+  std::uint64_t Value{ 0 };
+  bool          IsNegative{ false };
 };
 
 struct RttiBaseClassDescriptorNode : public IdentifierNode

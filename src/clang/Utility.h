@@ -12,11 +12,9 @@
 // the copy.  See README.txt for more details.
 //
 //===----------------------------------------------------------------------===//
-#pragma
-
-//#include "DemangleConfig.h"
-
+#pragma once
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>

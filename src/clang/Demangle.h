@@ -23,7 +23,7 @@ namespace cxx::demangler::backend::clang
 /// large enough, realloc is used to expand it.
 ///
 /// The *status will be set to a value from the following enumeration
-enum : int
+enum : signed char
 {
   demangle_unknown_error        = -4,
   demangle_invalid_args         = -3,
@@ -40,7 +40,6 @@ char* itaniumDemangle( std::string_view mangled_name, bool ParseParams = true );
 enum MSDemangleFlags
 {
   MSDF_None                = 0,
-  MSDF_DumpBackrefs        = 1 << 0,
   MSDF_NoAccessSpecifier   = 1 << 1,
   MSDF_NoCallingConvention = 1 << 2,
   MSDF_NoReturnType        = 1 << 3,

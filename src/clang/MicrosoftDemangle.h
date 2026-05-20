@@ -11,6 +11,7 @@
 #include "DemangleConfig.h"
 #include "MicrosoftDemangleNodes.h"
 
+#include <cstddef>
 #include <string_view>
 #include <utility>
 
@@ -168,8 +169,6 @@ public:
   // True if an error occurred.
   bool Error = false;
 
-  void dumpBackReferences();
-
 private:
   SymbolNode* demangleEncodedSymbol( std::string_view& MangledName, QualifiedNameNode* QN );
   SymbolNode* demangleDeclarator( std::string_view& MangledName );
@@ -245,8 +244,8 @@ private:
   std::string_view demangleSimpleString( std::string_view& MangledName, bool Memorize );
 
   FuncClass    demangleFunctionClass( std::string_view& MangledName );
-  CallingConv  demangleCallingConvention( std::string_view& MangledName );
-  StorageClass demangleVariableStorageClass( std::string_view& MangledName );
+  CallingConv  demangleCallingConvention( std::string_view& MangledName ) noexcept;
+  StorageClass demangleVariableStorageClass( std::string_view& MangledName ) noexcept;
   bool         demangleThrowSpecification( std::string_view& MangledName );
   wchar_t      demangleWcharLiteral( std::string_view& MangledName );
   uint8_t      demangleCharLiteral( std::string_view& MangledName );
