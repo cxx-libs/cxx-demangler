@@ -11,7 +11,6 @@
 #include "DemangleConfig.h"
 #include "MicrosoftDemangleNodes.h"
 
-#include <cassert>
 #include <string_view>
 #include <utility>
 
@@ -53,7 +52,6 @@ public:
   {
     while( Head )
     {
-      assert( Head->Buf );
       delete[] Head->Buf;
       AllocatorNode* Next = Head->Next;
       delete Head;
@@ -67,8 +65,6 @@ public:
 
   char* allocUnalignedBuffer( size_t Size )
   {
-    assert( Head && Head->Buf );
-
     uint8_t* P = Head->Buf + Head->Used;
 
     Head->Used += Size;
@@ -82,7 +78,6 @@ public:
   template<typename T, typename... Args> T* allocArray( size_t Count )
   {
     size_t Size = Count * sizeof( T );
-    assert( Head && Head->Buf );
 
     size_t    P          = (size_t)Head->Buf + Head->Used;
     uintptr_t AlignedP   = ( ( (size_t)P + alignof( T ) - 1 ) & ~(size_t)( alignof( T ) - 1 ) );
@@ -100,7 +95,6 @@ public:
   template<typename T, typename... Args> T* alloc( Args&&... ConstructorArgs )
   {
     constexpr size_t Size = sizeof( T );
-    assert( Head && Head->Buf );
 
     size_t    P          = (size_t)Head->Buf + Head->Used;
     uintptr_t AlignedP   = ( ( (size_t)P + alignof( T ) - 1 ) & ~(size_t)( alignof( T ) - 1 ) );

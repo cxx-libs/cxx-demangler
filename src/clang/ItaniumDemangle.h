@@ -135,34 +135,18 @@ public:
   }
 
   // NOLINTNEXTLINE(readability-identifier-naming)
-  void pop_back()
-  {
-    DEMANGLE_ASSERT( Last != First, "Popping empty vector!" );
-    --Last;
-  }
+  void pop_back() { --Last; }
 
-  void shrinkToSize( size_t Index )
-  {
-    DEMANGLE_ASSERT( Index <= size(), "shrinkToSize() can't expand!" );
-    Last = First + Index;
-  }
+  void shrinkToSize( size_t Index ) { Last = First + Index; }
 
   T* begin() { return First; }
   T* end() { return Last; }
 
   bool   empty() const { return First == Last; }
   size_t size() const { return static_cast<size_t>( Last - First ); }
-  T&     back()
-  {
-    DEMANGLE_ASSERT( Last != First, "Calling back() on empty vector!" );
-    return *( Last - 1 );
-  }
-  T& operator[]( size_t Index )
-  {
-    DEMANGLE_ASSERT( Index < size(), "Invalid access!" );
-    return *( begin() + Index );
-  }
-  void clear() { Last = First; }
+  T&     back() { return *( Last - 1 ); }
+  T&     operator[]( size_t Index ) { return *( begin() + Index ); }
+  void   clear() { Last = First; }
 
   ~PODSmallVector()
   {
@@ -938,7 +922,7 @@ class ExplicitObjectParameter final : public Node
   Node* Base;
 
 public:
-  ExplicitObjectParameter( Node* Base_ ) : Node( KExplicitObjectParameter ), Base( Base_ ) { DEMANGLE_ASSERT( Base != nullptr, "Creating an ExplicitObjectParameter without a valid Base Node." ); }
+  ExplicitObjectParameter( Node* Base_ ) : Node( KExplicitObjectParameter ), Base( Base_ ) {}
 
   template<typename Fn> void match( Fn F ) const { F( Base ); }
 
@@ -1747,7 +1731,6 @@ public:
     if( isInstantiation() )
     {
       // The instantiations are typedefs that drop the "basic_" prefix.
-      DEMANGLE_ASSERT( cxx::demangler::backend::clang::starts_with( SV, "basic_" ), "" );
       SV.remove_prefix( sizeof( "basic_" ) - 1 );
     }
     return SV;
@@ -2628,7 +2611,6 @@ template<typename Fn> void Node::visit( Fn F ) const
   case K##X: return F( static_cast<const X*>( this ) );
 #include "ItaniumNodes.def"
   }
-  DEMANGLE_ASSERT( 0, "unknown mangling node kind" );
 }
 
 /// Determine the kind of a node from its type.
@@ -2736,11 +2718,7 @@ template<typename Derived, typename Alloc> struct AbstractManglingParser
 
   public:
     ScopedTemplateParamList( AbstractManglingParser* TheParser ) : Parser( TheParser ), OldNumTemplateParamLists( TheParser->TemplateParams.size() ) { Parser->TemplateParams.push_back( &Params ); }
-    ~ScopedTemplateParamList()
-    {
-      DEMANGLE_ASSERT( Parser->TemplateParams.size() >= OldNumTemplateParamLists, "" );
-      Parser->TemplateParams.shrinkToSize( OldNumTemplateParamLists );
-    }
+    ~ScopedTemplateParamList() { Parser->TemplateParams.shrinkToSize( OldNumTemplateParamLists ); }
     TemplateParamList* params() { return &Params; }
   };
 
@@ -2821,7 +2799,6 @@ template<typename Derived, typename Alloc> struct AbstractManglingParser
 
   NodeArray popTrailingNodeArray( size_t FromPosition )
   {
-    DEMANGLE_ASSERT( FromPosition <= Names.size(), "" );
     NodeArray res = makeNodeArray( Names.begin() + (long)FromPosition, Names.end() );
     Names.shrinkToSize( FromPosition );
     return res;
@@ -2985,7 +2962,6 @@ template<typename Derived, typename Alloc> struct AbstractManglingParser
       std::string_view Res = Name;
       if( Kind < Unnameable )
       {
-        DEMANGLE_ASSERT( cxx::demangler::backend::clang::starts_with( Res, "operator" ), "operator name does not start with 'operator'" );
         Res.remove_prefix( sizeof( "operator" ) - 1 );
         if( cxx::demangler::backend::clang::starts_with( Res, ' ' ) ) Res.remove_prefix( 1 );
       }
@@ -3771,8 +3747,6 @@ template<typename Derived, typename Alloc> Node* AbstractManglingParser<Derived,
       if( !SoFar ) return nullptr;
     }
   }
-
-  DEMANGLE_ASSERT( SoFar != nullptr, "" );
 
   Node* Base = getDerived().parseBaseUnresolvedName();
   if( Base == nullptr ) return nullptr;
@@ -5601,7 +5575,6 @@ template<typename Derived, typename Alloc> Node* AbstractManglingParser<Derived,
   {
     Node* ForwardRef = make<ForwardTemplateReference>( Index );
     if( !ForwardRef ) return nullptr;
-    DEMANGLE_ASSERT( ForwardRef->getKind() == Node::KForwardTemplateReference, "" );
     ForwardTemplateRefs.push_back( static_cast<ForwardTemplateReference*>( ForwardRef ) );
     return ForwardRef;
   }

@@ -318,7 +318,6 @@ SpecialTableSymbolNode* Demangler::demangleSpecialTableSymbolNode( std::string_v
     TargetCurrent         = Next;
     QualifiedNameNode* QN = demangleFullyQualifiedTypeName( MangledName );
     if( Error ) return nullptr;
-    assert( QN );
     TargetCurrent->N = QN;
   }
 
@@ -496,7 +495,6 @@ SymbolNode* Demangler::demangleSpecialIntrinsic( std::string_view& MangledName )
 
 IdentifierNode* Demangler::demangleFunctionIdentifierCode( std::string_view& MangledName )
 {
-  assert( cxx::demangler::backend::clang::starts_with( MangledName, '?' ) );
   MangledName.remove_prefix( 1 );
   if( MangledName.empty() )
   {
@@ -757,7 +755,6 @@ SymbolNode* Demangler::demangleDeclarator( std::string_view& MangledName )
 
 SymbolNode* Demangler::demangleMD5Name( std::string_view& MangledName )
 {
-  assert( cxx::demangler::backend::clang::starts_with( MangledName, "??@" ) );
   // This is an MD5 mangled name.  We can't demangle it, just return the
   // mangled name.
   // An MD5 mangled name is ??@ followed by 32 characters and a terminating @.
@@ -783,7 +780,6 @@ SymbolNode* Demangler::demangleMD5Name( std::string_view& MangledName )
   //    either.
   consumeFront( MangledName, "??_R4@" );
 
-  assert( MangledName.size() < StartSize );
   const size_t     Count = StartSize - MangledName.size();
   std::string_view MD5( Start, Count );
   SymbolNode*      S = Arena.alloc<SymbolNode>( NodeKind::Md5Symbol );
@@ -794,7 +790,6 @@ SymbolNode* Demangler::demangleMD5Name( std::string_view& MangledName )
 
 SymbolNode* Demangler::demangleTypeinfoName( std::string_view& MangledName )
 {
-  assert( cxx::demangler::backend::clang::starts_with( MangledName, '.' ) );
   consumeFront( MangledName, '.' );
 
   TypeNode* T = demangleType( MangledName, QualifierMangleMode::Result );
@@ -970,8 +965,6 @@ void Demangler::memorizeString( std::string_view S )
 
 NamedIdentifierNode* Demangler::demangleBackRefName( std::string_view& MangledName )
 {
-  assert( startsWithDigit( MangledName ) );
-
   size_t I = MangledName[0] - '0';
   if( I >= Backrefs.NamesCount )
   {
@@ -996,7 +989,6 @@ void Demangler::memorizeIdentifier( IdentifierNode* Identifier )
 
 IdentifierNode* Demangler::demangleTemplateInstantiationName( std::string_view& MangledName, NameBackrefBehavior NBB )
 {
-  assert( cxx::demangler::backend::clang::starts_with( MangledName, "?$" ) );
   consumeFront( MangledName, "?$" );
 
   BackrefContext OuterContext;
@@ -1037,15 +1029,10 @@ NamedIdentifierNode* Demangler::demangleSimpleName( std::string_view& MangledNam
 
 static bool isRebasedHexDigit( char C ) { return ( C >= 'A' && C <= 'P' ); }
 
-static uint8_t rebasedHexDigitToNumber( char C )
-{
-  assert( isRebasedHexDigit( C ) );
-  return ( C <= 'J' ) ? ( C - 'A' ) : ( 10 + C - 'K' );
-}
+static uint8_t rebasedHexDigitToNumber( char C ) { return ( C <= 'J' ) ? ( C - 'A' ) : ( 10 + C - 'K' ); }
 
 uint8_t Demangler::demangleCharLiteral( std::string_view& MangledName )
 {
-  assert( !MangledName.empty() );
   if( !cxx::demangler::backend::clang::starts_with( MangledName, '?' ) )
   {
     const uint8_t F = MangledName.front();
@@ -1114,16 +1101,10 @@ WCharLiteralError:
   return L'\0';
 }
 
-static void writeHexDigit( char* Buffer, uint8_t Digit )
-{
-  assert( Digit <= 15 );
-  *Buffer = ( Digit < 10 ) ? ( '0' + Digit ) : ( 'A' + Digit - 10 );
-}
+static void writeHexDigit( char* Buffer, uint8_t Digit ) { *Buffer = ( Digit < 10 ) ? ( '0' + Digit ) : ( 'A' + Digit - 10 ); }
 
 static void outputHex( OutputBuffer& OB, unsigned C )
 {
-  assert( C != 0 );
-
   // It's easier to do the math if we can work from right to left, but we need
   // to print the numbers from left to right.  So render this into a temporary
   // buffer first, then output the temporary buffer.  Each byte is of the form
@@ -1144,7 +1125,6 @@ static void outputHex( OutputBuffer& OB, unsigned C )
     }
   }
   TempBuffer[Pos--] = 'x';
-  assert( Pos >= 0 );
   TempBuffer[Pos--] = '\\';
   OB << std::string_view( &TempBuffer[Pos + 1] );
 }
@@ -1227,8 +1207,6 @@ static unsigned countEmbeddedNulls( const uint8_t* StringBytes, unsigned Length 
 // (passed in StringBytes, NumChars).
 static unsigned guessCharByteSize( const uint8_t* StringBytes, unsigned NumChars, uint64_t NumBytes )
 {
-  assert( NumBytes > 0 );
-
   // If the number of bytes is odd, this is guaranteed to be a char string.
   if( NumBytes % 2 == 1 ) return 1;
 
@@ -1257,7 +1235,6 @@ static unsigned guessCharByteSize( const uint8_t* StringBytes, unsigned NumChars
 
 static unsigned decodeMultiByteChar( const uint8_t* StringBytes, unsigned CharIndex, unsigned CharBytes )
 {
-  assert( CharBytes == 1 || CharBytes == 2 || CharBytes == 4 );
   unsigned Offset = CharIndex * CharBytes;
   unsigned Result = 0;
   StringBytes     = StringBytes + Offset;
@@ -1356,7 +1333,6 @@ EncodedStringLiteralNode* Demangler::demangleStringLiteral( std::string_view& Ma
     if( StringByteSize > BytesDecoded ) Result->IsTruncated = true;
 
     unsigned CharBytes = guessCharByteSize( StringBytes, BytesDecoded, StringByteSize );
-    assert( StringByteSize % CharBytes == 0 );
     switch( CharBytes )
     {
       case 1: Result->Char = CharKind::Char; break;
@@ -1404,7 +1380,6 @@ std::string_view Demangler::demangleSimpleString( std::string_view& MangledName,
 
 NamedIdentifierNode* Demangler::demangleAnonymousNamespaceName( std::string_view& MangledName )
 {
-  assert( cxx::demangler::backend::clang::starts_with( MangledName, "?A" ) );
   consumeFront( MangledName, "?A" );
 
   NamedIdentifierNode* Node = Arena.alloc<NamedIdentifierNode>();
@@ -1423,19 +1398,15 @@ NamedIdentifierNode* Demangler::demangleAnonymousNamespaceName( std::string_view
 
 NamedIdentifierNode* Demangler::demangleLocallyScopedNamePiece( std::string_view& MangledName )
 {
-  assert( startsWithLocalScopePattern( MangledName ) );
-
   NamedIdentifierNode* Identifier = Arena.alloc<NamedIdentifierNode>();
   consumeFront( MangledName, '?' );
   uint64_t Number                = 0;
   bool     IsNegative            = false;
   std::tie( Number, IsNegative ) = demangleNumber( MangledName );
-  assert( !IsNegative );
 
   // One ? to terminate the number
   consumeFront( MangledName, '?' );
 
-  assert( !Error );
   Node* Scope = parse( MangledName );
   if( Error ) return nullptr;
 
@@ -1456,11 +1427,9 @@ QualifiedNameNode* Demangler::demangleFullyQualifiedTypeName( std::string_view& 
 {
   IdentifierNode* Identifier = demangleUnqualifiedTypeName( MangledName, /*Memorize=*/true );
   if( Error ) return nullptr;
-  assert( Identifier );
 
   QualifiedNameNode* QN = demangleNameScopeChain( MangledName, Identifier );
   if( Error ) return nullptr;
-  assert( QN );
   return QN;
 }
 
@@ -1491,7 +1460,6 @@ QualifiedNameNode* Demangler::demangleFullyQualifiedSymbolName( std::string_view
     Node*                   ClassNode = QN->Components->Nodes[QN->Components->Count - 2];
     SIN->Class                        = static_cast<IdentifierNode*>( ClassNode );
   }
-  assert( QN );
   return QN;
 }
 
@@ -1549,7 +1517,6 @@ QualifiedNameNode* Demangler::demangleNameScopeChain( std::string_view& MangledN
       return nullptr;
     }
 
-    assert( !Error );
     IdentifierNode* Elem = demangleNameScopePiece( MangledName );
     if( Error ) return nullptr;
 
@@ -1653,8 +1620,6 @@ CallingConv Demangler::demangleCallingConvention( std::string_view& MangledName 
 
 StorageClass Demangler::demangleVariableStorageClass( std::string_view& MangledName )
 {
-  assert( MangledName.front() >= '0' && MangledName.front() <= '4' );
-
   const char F = MangledName.front();
   MangledName.remove_prefix( 1 );
   switch( F )
@@ -1730,7 +1695,6 @@ TypeNode* Demangler::demangleType( std::string_view& MangledName, QualifierMangl
     if( consumeFront( MangledName, "$$A8@@" ) ) Ty = demangleFunctionType( MangledName, true );
     else
     {
-      assert( cxx::demangler::backend::clang::starts_with( MangledName, "$$A6" ) );
       consumeFront( MangledName, "$$A6" );
       Ty = demangleFunctionType( MangledName, false );
     }
@@ -1843,7 +1807,6 @@ FunctionSymbolNode* Demangler::demangleFunctionEncoding( std::string_view& Mangl
 
 CustomTypeNode* Demangler::demangleCustomType( std::string_view& MangledName )
 {
-  assert( cxx::demangler::backend::clang::starts_with( MangledName, '?' ) );
   MangledName.remove_prefix( 1 );
 
   CustomTypeNode* CTN = Arena.alloc<CustomTypeNode>();
@@ -1922,7 +1885,6 @@ TagTypeNode* Demangler::demangleClassType( std::string_view& MangledName )
       }
       TT = Arena.alloc<TagTypeNode>( TagKind::Enum );
       break;
-    default: assert( false );
   }
 
   TT->QualifiedName = demangleFullyQualifiedTypeName( MangledName );
@@ -1957,7 +1919,6 @@ PointerTypeNode* Demangler::demangleMemberPointerType( std::string_view& Mangled
   PointerTypeNode* Pointer = Arena.alloc<PointerTypeNode>();
 
   std::tie( Pointer->Quals, Pointer->Affinity ) = demanglePointerCVQualifiers( MangledName );
-  assert( Pointer->Affinity == PointerAffinity::Pointer );
 
   Qualifiers ExtQuals = demanglePointerExtQualifiers( MangledName );
   Pointer->Quals      = Qualifiers( Pointer->Quals | ExtQuals );
@@ -1974,8 +1935,7 @@ PointerTypeNode* Demangler::demangleMemberPointerType( std::string_view& Mangled
     Qualifiers PointeeQuals            = Q_None;
     bool       IsMember                = false;
     std::tie( PointeeQuals, IsMember ) = demangleQualifiers( MangledName );
-    assert( IsMember || Error );
-    Pointer->ClassParent = demangleFullyQualifiedTypeName( MangledName );
+    Pointer->ClassParent               = demangleFullyQualifiedTypeName( MangledName );
 
     Pointer->Pointee = demangleType( MangledName, QualifierMangleMode::Drop );
     if( Pointer->Pointee ) Pointer->Pointee->Quals = PointeeQuals;
@@ -2034,7 +1994,6 @@ PointerAuthQualifierNode* Demangler::createPointerAuthQualifier( std::string_vie
 
 ArrayTypeNode* Demangler::demangleArrayType( std::string_view& MangledName )
 {
-  assert( MangledName.front() == 'Y' );
   MangledName.remove_prefix( 1 );
 
   uint64_t Rank                = 0;
@@ -2121,7 +2080,6 @@ NodeArrayNode* Demangler::demangleFunctionParameterList( std::string_view& Mangl
     ( *Current )->N = TN;
 
     size_t CharsConsumed = OldSize - MangledName.size();
-    assert( CharsConsumed != 0 );
 
     // Single-letter types are ignored for backreferences because memorizing
     // them doesn't save anything.
@@ -2280,11 +2238,9 @@ NodeArrayNode* Demangler::demangleTemplateParameterList( std::string_view& Mangl
   }
 
   // The loop above returns nullptr on Error.
-  assert( !Error );
 
   // Template parameter lists cannot be variadic, so it can only be terminated
   // by @ (as opposed to 'Z' in the function parameter case).
-  assert( cxx::demangler::backend::clang::starts_with( MangledName, '@' ) );  // The above loop exits only on '@'.
   consumeFront( MangledName, '@' );
   return nodeListToNodeArray( Arena, Head, Count );
 }

@@ -180,7 +180,6 @@ public:
 
   void insert( size_t Pos, const char* S, size_t N )
   {
-    DEMANGLE_ASSERT( Pos <= CurrentPosition, "" );
     if( N == 0 ) return;
 
     grow( N );
@@ -198,11 +197,7 @@ public:
     CurrentPosition = NewPos;
   }
 
-  char back() const
-  {
-    DEMANGLE_ASSERT( CurrentPosition, "" );
-    return Buffer[CurrentPosition - 1];
-  }
+  char back() const { return Buffer[CurrentPosition - 1]; }
 
   bool empty() const { return CurrentPosition == 0; }
 

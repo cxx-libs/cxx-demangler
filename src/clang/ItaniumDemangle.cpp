@@ -14,7 +14,6 @@
 
 #include "Demangle.h"
 
-#include <cassert>
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
@@ -361,7 +360,6 @@ char* llvm::itaniumDemangle( std::string_view MangledName, bool ParseParams )
   if( !AST ) return nullptr;
 
   OutputBuffer OB;
-  assert( Parser.ForwardTemplateRefs.empty() );
   AST->print( OB );
   OB += '\0';
   return OB.getBuffer();
@@ -501,23 +499,16 @@ char* ItaniumPartialDemangler::getFunctionReturnType( char* Buf, size_t* N ) con
   return OB.getBuffer();
 }
 
-char* ItaniumPartialDemangler::finishDemangle( char* Buf, size_t* N ) const
-{
-  assert( RootNode != nullptr && "must call partialDemangle()" );
-  return printNode( static_cast<Node*>( RootNode ), Buf, N );
-}
+char* ItaniumPartialDemangler::finishDemangle( char* Buf, size_t* N ) const { return printNode( static_cast<Node*>( RootNode ), Buf, N ); }
 
 char* ItaniumPartialDemangler::finishDemangle( void* OB ) const
 {
-  assert( RootNode != nullptr && "must call partialDemangle()" );
-  assert( OB != nullptr && "valid OutputBuffer argument required" );
   return printNode( static_cast<Node*>( RootNode ), *static_cast<OutputBuffer*>( OB ),
                     /*N=*/nullptr );
 }
 
 bool ItaniumPartialDemangler::hasFunctionQualifiers() const
 {
-  assert( RootNode != nullptr && "must call partialDemangle()" );
   if( !isFunction() ) return false;
   auto* E = static_cast<const FunctionEncoding*>( RootNode );
   return E->getCVQuals() != QualNone || E->getRefQual() != FrefQualNone;
@@ -544,15 +535,10 @@ bool ItaniumPartialDemangler::isCtorOrDtor() const
   return false;
 }
 
-bool ItaniumPartialDemangler::isFunction() const
-{
-  assert( RootNode != nullptr && "must call partialDemangle()" );
-  return static_cast<const Node*>( RootNode )->getKind() == Node::KFunctionEncoding;
-}
+bool ItaniumPartialDemangler::isFunction() const { return static_cast<const Node*>( RootNode )->getKind() == Node::KFunctionEncoding; }
 
 bool ItaniumPartialDemangler::isSpecialName() const
 {
-  assert( RootNode != nullptr && "must call partialDemangle()" );
   auto K = static_cast<const Node*>( RootNode )->getKind();
   return K == Node::KSpecialName || K == Node::KCtorVtableSpecialName;
 }

@@ -431,7 +431,7 @@ void PointerTypeNode::outputPre( OutputBuffer& OB, OutputFlags Flags ) const
     case PointerAffinity::Pointer: OB << "*"; break;
     case PointerAffinity::Reference: OB << "&"; break;
     case PointerAffinity::RValueReference: OB << "&&"; break;
-    default: assert( false );
+    default: break;
   }
   outputQualifiers( OB, Quals, false, false );
 
@@ -472,7 +472,6 @@ void ArrayTypeNode::outputPre( OutputBuffer& OB, OutputFlags Flags ) const
 
 void ArrayTypeNode::outputOneDimension( OutputBuffer& OB, OutputFlags Flags, Node* N ) const
 {
-  assert( N->kind() == NodeKind::IntegerLiteral );
   IntegerLiteralNode* ILN = static_cast<IntegerLiteralNode*>( N );
   if( ILN->Value != 0 ) ILN->output( OB, Flags );
 }
