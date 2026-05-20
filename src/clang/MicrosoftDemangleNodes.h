@@ -26,8 +26,6 @@ class OutputBuffer;
 }
 }  // namespace llvm
 
-using llvm::itanium_demangle::OutputBuffer;
-
 namespace llvm
 {
 namespace ms_demangle
@@ -316,7 +314,7 @@ struct Node
 
   NodeKind kind() const { return Kind; }
 
-  virtual void output( OutputBuffer& OB, OutputFlags Flags ) const = 0;
+  virtual void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const = 0;
 
   DEMANGLE_ABI std::string toString( OutputFlags Flags = OF_Default ) const;
 
@@ -355,10 +353,10 @@ struct TypeNode : public Node
 {
   explicit TypeNode( NodeKind K ) : Node( K ) {}
 
-  virtual void outputPre( OutputBuffer& OB, OutputFlags Flags ) const  = 0;
-  virtual void outputPost( OutputBuffer& OB, OutputFlags Flags ) const = 0;
+  virtual void outputPre( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const  = 0;
+  virtual void outputPost( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const = 0;
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override
   {
     outputPre( OB, Flags );
     outputPost( OB, Flags );
@@ -373,8 +371,8 @@ struct DEMANGLE_ABI PrimitiveTypeNode : public TypeNode
 {
   explicit PrimitiveTypeNode( PrimitiveKind K ) : TypeNode( NodeKind::PrimitiveType ), PrimKind( K ) {}
 
-  void outputPre( OutputBuffer& OB, OutputFlags Flags ) const override;
-  void outputPost( OutputBuffer& OB, OutputFlags Flags ) const override {}
+  void outputPre( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
+  void outputPost( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override {}
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::PrimitiveType; }
 
@@ -386,8 +384,8 @@ struct DEMANGLE_ABI FunctionSignatureNode : public TypeNode
   explicit FunctionSignatureNode( NodeKind K ) : TypeNode( K ) {}
   FunctionSignatureNode() : TypeNode( NodeKind::FunctionSignature ) {}
 
-  void outputPre( OutputBuffer& OB, OutputFlags Flags ) const override;
-  void outputPost( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void outputPre( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
+  void outputPost( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() >= NodeKind::FunctionSignature && N->kind() <= NodeKind::FunctionSignatureEnd; }
 
@@ -425,14 +423,14 @@ struct IdentifierNode : public Node
   NodeArrayNode* TemplateParams = nullptr;
 
 protected:
-  DEMANGLE_ABI void outputTemplateParameters( OutputBuffer& OB, OutputFlags Flags ) const;
+  DEMANGLE_ABI void outputTemplateParameters( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const;
 };
 
 struct DEMANGLE_ABI VcallThunkIdentifierNode : public IdentifierNode
 {
   VcallThunkIdentifierNode() : IdentifierNode( NodeKind::VcallThunkIdentifier ) {}
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::VcallThunkIdentifier; }
 
@@ -443,7 +441,7 @@ struct DEMANGLE_ABI DynamicStructorIdentifierNode : public IdentifierNode
 {
   DynamicStructorIdentifierNode() : IdentifierNode( NodeKind::DynamicStructorIdentifier ) {}
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::DynamicStructorIdentifier; }
 
@@ -456,7 +454,7 @@ struct DEMANGLE_ABI NamedIdentifierNode : public IdentifierNode
 {
   NamedIdentifierNode() : IdentifierNode( NodeKind::NamedIdentifier ) {}
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::NamedIdentifier; }
 
@@ -467,7 +465,7 @@ struct DEMANGLE_ABI IntrinsicFunctionIdentifierNode : public IdentifierNode
 {
   explicit IntrinsicFunctionIdentifierNode( IntrinsicFunctionKind Operator ) : IdentifierNode( NodeKind::IntrinsicFunctionIdentifier ), Operator( Operator ) {}
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::IntrinsicFunctionIdentifier; }
 
@@ -478,7 +476,7 @@ struct DEMANGLE_ABI LiteralOperatorIdentifierNode : public IdentifierNode
 {
   LiteralOperatorIdentifierNode() : IdentifierNode( NodeKind::LiteralOperatorIdentifier ) {}
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::LiteralOperatorIdentifier; }
 
@@ -489,7 +487,7 @@ struct DEMANGLE_ABI LocalStaticGuardIdentifierNode : public IdentifierNode
 {
   LocalStaticGuardIdentifierNode() : IdentifierNode( NodeKind::LocalStaticGuardIdentifier ) {}
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::LocalStaticGuardIdentifier; }
 
@@ -501,7 +499,7 @@ struct DEMANGLE_ABI ConversionOperatorIdentifierNode : public IdentifierNode
 {
   ConversionOperatorIdentifierNode() : IdentifierNode( NodeKind::ConversionOperatorIdentifier ) {}
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::ConversionOperatorIdentifier; }
 
@@ -514,7 +512,7 @@ struct DEMANGLE_ABI StructorIdentifierNode : public IdentifierNode
   StructorIdentifierNode() : IdentifierNode( NodeKind::StructorIdentifier ) {}
   explicit StructorIdentifierNode( bool IsDestructor ) : IdentifierNode( NodeKind::StructorIdentifier ), IsDestructor( IsDestructor ) {}
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::StructorIdentifier; }
 
@@ -527,8 +525,8 @@ struct DEMANGLE_ABI ThunkSignatureNode : public FunctionSignatureNode
 {
   ThunkSignatureNode() : FunctionSignatureNode( NodeKind::ThunkSignature ) {}
 
-  void outputPre( OutputBuffer& OB, OutputFlags Flags ) const override;
-  void outputPost( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void outputPre( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
+  void outputPost( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::ThunkSignature; }
 
@@ -546,8 +544,8 @@ struct DEMANGLE_ABI ThunkSignatureNode : public FunctionSignatureNode
 struct DEMANGLE_ABI PointerTypeNode : public TypeNode
 {
   PointerTypeNode() : TypeNode( NodeKind::PointerType ) {}
-  void outputPre( OutputBuffer& OB, OutputFlags Flags ) const override;
-  void outputPost( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void outputPre( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
+  void outputPost( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::PointerType; }
 
@@ -568,8 +566,8 @@ struct DEMANGLE_ABI TagTypeNode : public TypeNode
 {
   explicit TagTypeNode( TagKind Tag ) : TypeNode( NodeKind::TagType ), Tag( Tag ) {}
 
-  void outputPre( OutputBuffer& OB, OutputFlags Flags ) const override;
-  void outputPost( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void outputPre( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
+  void outputPost( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::TagType; }
 
@@ -581,11 +579,11 @@ struct DEMANGLE_ABI ArrayTypeNode : public TypeNode
 {
   ArrayTypeNode() : TypeNode( NodeKind::ArrayType ) {}
 
-  void outputPre( OutputBuffer& OB, OutputFlags Flags ) const override;
-  void outputPost( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void outputPre( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
+  void outputPost( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
-  void outputDimensionsImpl( OutputBuffer& OB, OutputFlags Flags ) const;
-  void outputOneDimension( OutputBuffer& OB, OutputFlags Flags, Node* N ) const;
+  void outputDimensionsImpl( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const;
+  void outputOneDimension( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags, Node* N ) const;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::ArrayType; }
 
@@ -599,7 +597,7 @@ struct DEMANGLE_ABI ArrayTypeNode : public TypeNode
 struct IntrinsicNode : public TypeNode
 {
   IntrinsicNode() : TypeNode( NodeKind::IntrinsicType ) {}
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override {}
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override {}
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::IntrinsicType; }
 };
@@ -608,8 +606,8 @@ struct DEMANGLE_ABI CustomTypeNode : public TypeNode
 {
   CustomTypeNode() : TypeNode( NodeKind::Custom ) {}
 
-  void outputPre( OutputBuffer& OB, OutputFlags Flags ) const override;
-  void outputPost( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void outputPre( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
+  void outputPost( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::Custom; }
 
@@ -620,9 +618,9 @@ struct DEMANGLE_ABI NodeArrayNode : public Node
 {
   NodeArrayNode() : Node( NodeKind::NodeArray ) {}
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
-  void output( OutputBuffer& OB, OutputFlags Flags, std::string_view Separator ) const;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags, std::string_view Separator ) const;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::NodeArray; }
 
@@ -634,7 +632,7 @@ struct DEMANGLE_ABI QualifiedNameNode : public Node
 {
   QualifiedNameNode() : Node( NodeKind::QualifiedName ) {}
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::QualifiedName; }
 
@@ -651,7 +649,7 @@ struct DEMANGLE_ABI TemplateParameterReferenceNode : public Node
 {
   TemplateParameterReferenceNode() : Node( NodeKind::TemplateParameterReference ) {}
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::TemplateParameterReference; }
 
@@ -668,7 +666,7 @@ struct DEMANGLE_ABI IntegerLiteralNode : public Node
   IntegerLiteralNode() : Node( NodeKind::IntegerLiteral ) {}
   IntegerLiteralNode( uint64_t Value, bool IsNegative ) : Node( NodeKind::IntegerLiteral ), Value( Value ), IsNegative( IsNegative ) {}
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::IntegerLiteral; }
 
@@ -680,7 +678,7 @@ struct DEMANGLE_ABI RttiBaseClassDescriptorNode : public IdentifierNode
 {
   RttiBaseClassDescriptorNode() : IdentifierNode( NodeKind::RttiBaseClassDescriptor ) {}
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::RttiBaseClassDescriptor; }
 
@@ -693,7 +691,7 @@ struct DEMANGLE_ABI RttiBaseClassDescriptorNode : public IdentifierNode
 struct DEMANGLE_ABI SymbolNode : public Node
 {
   explicit SymbolNode( NodeKind K ) : Node( K ) {}
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() >= NodeKind::SymbolStart && N->kind() <= NodeKind::SymbolEnd; }
 
@@ -704,7 +702,7 @@ struct DEMANGLE_ABI SpecialTableSymbolNode : public SymbolNode
 {
   explicit SpecialTableSymbolNode() : SymbolNode( NodeKind::SpecialTableSymbol ) {}
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::SpecialTableSymbol; }
 
@@ -716,7 +714,7 @@ struct DEMANGLE_ABI LocalStaticGuardVariableNode : public SymbolNode
 {
   LocalStaticGuardVariableNode() : SymbolNode( NodeKind::LocalStaticGuardVariable ) {}
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::LocalStaticGuardVariable; }
 
@@ -727,7 +725,7 @@ struct DEMANGLE_ABI EncodedStringLiteralNode : public SymbolNode
 {
   EncodedStringLiteralNode() : SymbolNode( NodeKind::EncodedStringLiteral ) {}
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::EncodedStringLiteral; }
 
@@ -740,7 +738,7 @@ struct DEMANGLE_ABI VariableSymbolNode : public SymbolNode
 {
   VariableSymbolNode() : SymbolNode( NodeKind::VariableSymbol ) {}
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::VariableSymbol; }
 
@@ -752,7 +750,7 @@ struct DEMANGLE_ABI FunctionSymbolNode : public SymbolNode
 {
   FunctionSymbolNode() : SymbolNode( NodeKind::FunctionSymbol ) {}
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::FunctionSymbol; }
 
@@ -770,7 +768,7 @@ struct DEMANGLE_ABI PointerAuthQualifierNode : public Node
   static constexpr unsigned             NumArgs = 3;
   typedef std::array<uint64_t, NumArgs> ArgArray;
 
-  void output( OutputBuffer& OB, OutputFlags Flags ) const override;
+  void output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const override;
 
   static bool classof( const Node* N ) { return N->kind() == NodeKind::PointerAuthQualifier; }
 

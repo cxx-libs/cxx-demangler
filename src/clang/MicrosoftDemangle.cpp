@@ -980,7 +980,7 @@ void Demangler::memorizeIdentifier( IdentifierNode* Identifier )
 {
   // Render this class template name into a string buffer so that we can
   // memorize it for the purpose of back-referencing.
-  OutputBuffer OB;
+  llvm::itanium_demangle::OutputBuffer OB;
   Identifier->output( OB, OF_Default );
   std::string_view Owned = copyString( OB );
   memorizeString( Owned );
@@ -1103,7 +1103,7 @@ WCharLiteralError:
 
 static void writeHexDigit( char* Buffer, uint8_t Digit ) { *Buffer = ( Digit < 10 ) ? ( '0' + Digit ) : ( 'A' + Digit - 10 ); }
 
-static void outputHex( OutputBuffer& OB, unsigned C )
+static void outputHex( llvm::itanium_demangle::OutputBuffer& OB, unsigned C )
 {
   // It's easier to do the math if we can work from right to left, but we need
   // to print the numbers from left to right.  So render this into a temporary
@@ -1129,7 +1129,7 @@ static void outputHex( OutputBuffer& OB, unsigned C )
   OB << std::string_view( &TempBuffer[Pos + 1] );
 }
 
-static void outputEscapedChar( OutputBuffer& OB, unsigned C )
+static void outputEscapedChar( llvm::itanium_demangle::OutputBuffer& OB, unsigned C )
 {
   switch( C )
   {
@@ -1264,13 +1264,13 @@ FunctionSymbolNode* Demangler::demangleVcallThunkNode( std::string_view& Mangled
 EncodedStringLiteralNode* Demangler::demangleStringLiteral( std::string_view& MangledName )
 {
   // This function uses goto, so declare all variables up front.
-  OutputBuffer     OB;
-  std::string_view CRC;
-  uint64_t         StringByteSize;
-  bool             IsWcharT   = false;
-  bool             IsNegative = false;
-  size_t           CrcEndPos  = 0;
-  char             F;
+  llvm::itanium_demangle::OutputBuffer OB;
+  std::string_view                     CRC;
+  uint64_t                             StringByteSize;
+  bool                                 IsWcharT   = false;
+  bool                                 IsNegative = false;
+  size_t                               CrcEndPos  = 0;
+  char                                 F;
 
   EncodedStringLiteralNode* Result = Arena.alloc<EncodedStringLiteralNode>();
 
@@ -1411,7 +1411,7 @@ NamedIdentifierNode* Demangler::demangleLocallyScopedNamePiece( std::string_view
   if( Error ) return nullptr;
 
   // Render the parent symbol's name into a buffer.
-  OutputBuffer OB;
+  llvm::itanium_demangle::OutputBuffer OB;
   OB << '`';
   Scope->output( OB, OF_Default );
   OB << '\'';
@@ -2250,7 +2250,7 @@ void Demangler::dumpBackReferences()
   std::printf( "%d function parameter backreferences\n", (int)Backrefs.FunctionParamCount );
 
   // Create an output stream so we can render each type.
-  OutputBuffer OB;
+  llvm::itanium_demangle::OutputBuffer OB;
   for( size_t I = 0; I < Backrefs.FunctionParamCount; ++I )
   {
     OB.setCurrentPosition( 0 );
@@ -2307,7 +2307,7 @@ char* llvm::microsoftDemangle( std::string_view MangledName, size_t* NMangled, i
   if( D.Error ) InternalStatus = demangle_invalid_mangled_name;
   else
   {
-    OutputBuffer OB;
+    llvm::itanium_demangle::OutputBuffer OB;
     AST->output( OB, OF );
     OB += '\0';
     Buf = OB.getBuffer();

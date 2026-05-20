@@ -24,7 +24,7 @@ using namespace ms_demangle;
   case Enum::Value: OB << Desc; break;
 
 // Writes a space if the last token does not end with a punctuation.
-static void outputSpaceIfNecessary( OutputBuffer& OB )
+static void outputSpaceIfNecessary( llvm::itanium_demangle::OutputBuffer& OB )
 {
   if( OB.empty() ) return;
 
@@ -32,7 +32,7 @@ static void outputSpaceIfNecessary( OutputBuffer& OB )
   if( std::isalnum( C ) || C == '>' ) OB << " ";
 }
 
-static void outputSingleQualifier( OutputBuffer& OB, Qualifiers Q )
+static void outputSingleQualifier( llvm::itanium_demangle::OutputBuffer& OB, Qualifiers Q )
 {
   switch( Q )
   {
@@ -43,7 +43,7 @@ static void outputSingleQualifier( OutputBuffer& OB, Qualifiers Q )
   }
 }
 
-static bool outputQualifierIfPresent( OutputBuffer& OB, Qualifiers Q, Qualifiers Mask, bool NeedSpace )
+static bool outputQualifierIfPresent( llvm::itanium_demangle::OutputBuffer& OB, Qualifiers Q, Qualifiers Mask, bool NeedSpace )
 {
   if( !( Q & Mask ) ) return NeedSpace;
 
@@ -53,7 +53,7 @@ static bool outputQualifierIfPresent( OutputBuffer& OB, Qualifiers Q, Qualifiers
   return true;
 }
 
-static void outputQualifiers( OutputBuffer& OB, Qualifiers Q, bool SpaceBefore, bool SpaceAfter )
+static void outputQualifiers( llvm::itanium_demangle::OutputBuffer& OB, Qualifiers Q, bool SpaceBefore, bool SpaceAfter )
 {
   if( Q == Q_None ) return;
 
@@ -65,7 +65,7 @@ static void outputQualifiers( OutputBuffer& OB, Qualifiers Q, bool SpaceBefore, 
   if( SpaceAfter && Pos2 > Pos1 ) OB << " ";
 }
 
-static void outputCallingConvention( OutputBuffer& OB, CallingConv CC )
+static void outputCallingConvention( llvm::itanium_demangle::OutputBuffer& OB, CallingConv CC )
 {
   outputSpaceIfNecessary( OB );
 
@@ -88,7 +88,7 @@ static void outputCallingConvention( OutputBuffer& OB, CallingConv CC )
 
 std::string Node::toString( OutputFlags Flags ) const
 {
-  OutputBuffer OB;
+  llvm::itanium_demangle::OutputBuffer OB;
   this->output( OB, Flags );
   std::string_view SV = OB;
   std::string      Owned( SV.begin(), SV.end() );
@@ -96,7 +96,7 @@ std::string Node::toString( OutputFlags Flags ) const
   return Owned;
 }
 
-void PrimitiveTypeNode::outputPre( OutputBuffer& OB, OutputFlags Flags ) const
+void PrimitiveTypeNode::outputPre( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   switch( PrimKind )
   {
@@ -127,9 +127,9 @@ void PrimitiveTypeNode::outputPre( OutputBuffer& OB, OutputFlags Flags ) const
   outputQualifiers( OB, Quals, true, false );
 }
 
-void NodeArrayNode::output( OutputBuffer& OB, OutputFlags Flags ) const { output( OB, Flags, ", " ); }
+void NodeArrayNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const { output( OB, Flags, ", " ); }
 
-void NodeArrayNode::output( OutputBuffer& OB, OutputFlags Flags, std::string_view Separator ) const
+void NodeArrayNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags, std::string_view Separator ) const
 {
   if( Count == 0 ) return;
   if( Nodes[0] ) Nodes[0]->output( OB, Flags );
@@ -140,7 +140,7 @@ void NodeArrayNode::output( OutputBuffer& OB, OutputFlags Flags, std::string_vie
   }
 }
 
-void EncodedStringLiteralNode::output( OutputBuffer& OB, OutputFlags Flags ) const
+void EncodedStringLiteralNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   switch( Char )
   {
@@ -153,13 +153,13 @@ void EncodedStringLiteralNode::output( OutputBuffer& OB, OutputFlags Flags ) con
   if( IsTruncated ) OB << "...";
 }
 
-void IntegerLiteralNode::output( OutputBuffer& OB, OutputFlags Flags ) const
+void IntegerLiteralNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   if( IsNegative ) OB << '-';
   OB << Value;
 }
 
-void TemplateParameterReferenceNode::output( OutputBuffer& OB, OutputFlags Flags ) const
+void TemplateParameterReferenceNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   if( ThunkOffsetCount > 0 ) OB << "{";
   else if( Affinity == PointerAffinity::Pointer )
@@ -176,7 +176,7 @@ void TemplateParameterReferenceNode::output( OutputBuffer& OB, OutputFlags Flags
   if( ThunkOffsetCount > 0 ) OB << "}";
 }
 
-void IdentifierNode::outputTemplateParameters( OutputBuffer& OB, OutputFlags Flags ) const
+void IdentifierNode::outputTemplateParameters( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   if( !TemplateParams ) return;
   OB << "<";
@@ -184,7 +184,7 @@ void IdentifierNode::outputTemplateParameters( OutputBuffer& OB, OutputFlags Fla
   OB << ">";
 }
 
-void DynamicStructorIdentifierNode::output( OutputBuffer& OB, OutputFlags Flags ) const
+void DynamicStructorIdentifierNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   if( IsDestructor ) OB << "`dynamic atexit destructor for ";
   else
@@ -204,13 +204,13 @@ void DynamicStructorIdentifierNode::output( OutputBuffer& OB, OutputFlags Flags 
   }
 }
 
-void NamedIdentifierNode::output( OutputBuffer& OB, OutputFlags Flags ) const
+void NamedIdentifierNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   OB << Name;
   outputTemplateParameters( OB, Flags );
 }
 
-void IntrinsicFunctionIdentifierNode::output( OutputBuffer& OB, OutputFlags Flags ) const
+void IntrinsicFunctionIdentifierNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   switch( Operator )
   {
@@ -284,7 +284,7 @@ void IntrinsicFunctionIdentifierNode::output( OutputBuffer& OB, OutputFlags Flag
   outputTemplateParameters( OB, Flags );
 }
 
-void LocalStaticGuardIdentifierNode::output( OutputBuffer& OB, OutputFlags Flags ) const
+void LocalStaticGuardIdentifierNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   if( IsThread ) OB << "`local static thread guard'";
   else
@@ -292,7 +292,7 @@ void LocalStaticGuardIdentifierNode::output( OutputBuffer& OB, OutputFlags Flags
   if( ScopeIndex > 0 ) OB << "{" << ScopeIndex << "}";
 }
 
-void ConversionOperatorIdentifierNode::output( OutputBuffer& OB, OutputFlags Flags ) const
+void ConversionOperatorIdentifierNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   OB << "operator";
   outputTemplateParameters( OB, Flags );
@@ -300,20 +300,20 @@ void ConversionOperatorIdentifierNode::output( OutputBuffer& OB, OutputFlags Fla
   TargetType->output( OB, Flags );
 }
 
-void StructorIdentifierNode::output( OutputBuffer& OB, OutputFlags Flags ) const
+void StructorIdentifierNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   if( IsDestructor ) OB << "~";
   Class->output( OB, Flags );
   outputTemplateParameters( OB, Flags );
 }
 
-void LiteralOperatorIdentifierNode::output( OutputBuffer& OB, OutputFlags Flags ) const
+void LiteralOperatorIdentifierNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   OB << "operator \"\"" << Name;
   outputTemplateParameters( OB, Flags );
 }
 
-void FunctionSignatureNode::outputPre( OutputBuffer& OB, OutputFlags Flags ) const
+void FunctionSignatureNode::outputPre( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   if( !( Flags & OF_NoAccessSpecifier ) )
   {
@@ -342,7 +342,7 @@ void FunctionSignatureNode::outputPre( OutputBuffer& OB, OutputFlags Flags ) con
   if( !( Flags & OF_NoCallingConvention ) ) outputCallingConvention( OB, CallConvention );
 }
 
-void FunctionSignatureNode::outputPost( OutputBuffer& OB, OutputFlags Flags ) const
+void FunctionSignatureNode::outputPost( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   if( !( FunctionClass & FC_NoParameterList ) )
   {
@@ -373,14 +373,14 @@ void FunctionSignatureNode::outputPost( OutputBuffer& OB, OutputFlags Flags ) co
   if( !( Flags & OF_NoReturnType ) && ReturnType ) ReturnType->outputPost( OB, Flags );
 }
 
-void ThunkSignatureNode::outputPre( OutputBuffer& OB, OutputFlags Flags ) const
+void ThunkSignatureNode::outputPre( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   OB << "[thunk]: ";
 
   FunctionSignatureNode::outputPre( OB, Flags );
 }
 
-void ThunkSignatureNode::outputPost( OutputBuffer& OB, OutputFlags Flags ) const
+void ThunkSignatureNode::outputPost( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   if( FunctionClass & FC_StaticThisAdjust ) { OB << "`adjustor{" << ThisAdjust.StaticOffset << "}'"; }
   else if( FunctionClass & FC_VirtualThisAdjust )
@@ -395,7 +395,7 @@ void ThunkSignatureNode::outputPost( OutputBuffer& OB, OutputFlags Flags ) const
   FunctionSignatureNode::outputPost( OB, Flags );
 }
 
-void PointerTypeNode::outputPre( OutputBuffer& OB, OutputFlags Flags ) const
+void PointerTypeNode::outputPre( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   if( Pointee->kind() == NodeKind::FunctionSignature )
   {
@@ -438,14 +438,14 @@ void PointerTypeNode::outputPre( OutputBuffer& OB, OutputFlags Flags ) const
   if( PointerAuthQualifier ) PointerAuthQualifier->output( OB, Flags );
 }
 
-void PointerTypeNode::outputPost( OutputBuffer& OB, OutputFlags Flags ) const
+void PointerTypeNode::outputPost( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   if( Pointee->kind() == NodeKind::ArrayType || Pointee->kind() == NodeKind::FunctionSignature ) OB << ")";
 
   Pointee->outputPost( OB, Flags );
 }
 
-void TagTypeNode::outputPre( OutputBuffer& OB, OutputFlags Flags ) const
+void TagTypeNode::outputPre( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   if( !( Flags & OF_NoTagSpecifier ) )
   {
@@ -462,21 +462,21 @@ void TagTypeNode::outputPre( OutputBuffer& OB, OutputFlags Flags ) const
   outputQualifiers( OB, Quals, true, false );
 }
 
-void TagTypeNode::outputPost( OutputBuffer& OB, OutputFlags Flags ) const {}
+void TagTypeNode::outputPost( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const {}
 
-void ArrayTypeNode::outputPre( OutputBuffer& OB, OutputFlags Flags ) const
+void ArrayTypeNode::outputPre( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   ElementType->outputPre( OB, Flags );
   outputQualifiers( OB, Quals, true, false );
 }
 
-void ArrayTypeNode::outputOneDimension( OutputBuffer& OB, OutputFlags Flags, Node* N ) const
+void ArrayTypeNode::outputOneDimension( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags, Node* N ) const
 {
   IntegerLiteralNode* ILN = static_cast<IntegerLiteralNode*>( N );
   if( ILN->Value != 0 ) ILN->output( OB, Flags );
 }
 
-void ArrayTypeNode::outputDimensionsImpl( OutputBuffer& OB, OutputFlags Flags ) const
+void ArrayTypeNode::outputDimensionsImpl( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   if( Dimensions->Count == 0 ) return;
 
@@ -488,7 +488,7 @@ void ArrayTypeNode::outputDimensionsImpl( OutputBuffer& OB, OutputFlags Flags ) 
   }
 }
 
-void ArrayTypeNode::outputPost( OutputBuffer& OB, OutputFlags Flags ) const
+void ArrayTypeNode::outputPost( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   OB << "[";
   outputDimensionsImpl( OB, Flags );
@@ -497,9 +497,9 @@ void ArrayTypeNode::outputPost( OutputBuffer& OB, OutputFlags Flags ) const
   ElementType->outputPost( OB, Flags );
 }
 
-void SymbolNode::output( OutputBuffer& OB, OutputFlags Flags ) const { Name->output( OB, Flags ); }
+void SymbolNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const { Name->output( OB, Flags ); }
 
-void FunctionSymbolNode::output( OutputBuffer& OB, OutputFlags Flags ) const
+void FunctionSymbolNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   Signature->outputPre( OB, Flags );
   outputSpaceIfNecessary( OB );
@@ -507,14 +507,14 @@ void FunctionSymbolNode::output( OutputBuffer& OB, OutputFlags Flags ) const
   Signature->outputPost( OB, Flags );
 }
 
-void PointerAuthQualifierNode::output( OutputBuffer& OB, OutputFlags Flags ) const
+void PointerAuthQualifierNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   OB << "__ptrauth(";
   Components->output( OB, Flags );
   OB << ")";
 }
 
-void VariableSymbolNode::output( OutputBuffer& OB, OutputFlags Flags ) const
+void VariableSymbolNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   const char* AccessSpec = nullptr;
   bool        IsStatic   = true;
@@ -537,23 +537,23 @@ void VariableSymbolNode::output( OutputBuffer& OB, OutputFlags Flags ) const
   if( !( Flags & OF_NoVariableType ) && Type ) Type->outputPost( OB, Flags );
 }
 
-void CustomTypeNode::outputPre( OutputBuffer& OB, OutputFlags Flags ) const { Identifier->output( OB, Flags ); }
-void CustomTypeNode::outputPost( OutputBuffer& OB, OutputFlags Flags ) const {}
+void CustomTypeNode::outputPre( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const { Identifier->output( OB, Flags ); }
+void CustomTypeNode::outputPost( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const {}
 
-void QualifiedNameNode::output( OutputBuffer& OB, OutputFlags Flags ) const { Components->output( OB, Flags, "::" ); }
+void QualifiedNameNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const { Components->output( OB, Flags, "::" ); }
 
-void RttiBaseClassDescriptorNode::output( OutputBuffer& OB, OutputFlags Flags ) const
+void RttiBaseClassDescriptorNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   OB << "`RTTI Base Class Descriptor at (";
   OB << NVOffset << ", " << VBPtrOffset << ", " << VBTableOffset << ", " << this->Flags;
   OB << ")'";
 }
 
-void LocalStaticGuardVariableNode::output( OutputBuffer& OB, OutputFlags Flags ) const { Name->output( OB, Flags ); }
+void LocalStaticGuardVariableNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const { Name->output( OB, Flags ); }
 
-void VcallThunkIdentifierNode::output( OutputBuffer& OB, OutputFlags Flags ) const { OB << "`vcall'{" << OffsetInVTable << ", {flat}}"; }
+void VcallThunkIdentifierNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const { OB << "`vcall'{" << OffsetInVTable << ", {flat}}"; }
 
-void SpecialTableSymbolNode::output( OutputBuffer& OB, OutputFlags Flags ) const
+void SpecialTableSymbolNode::output( llvm::itanium_demangle::OutputBuffer& OB, OutputFlags Flags ) const
 {
   outputQualifiers( OB, Quals, false, true );
   Name->output( OB, Flags );

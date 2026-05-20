@@ -129,7 +129,7 @@ struct ItaniumPartialDemangler
   DEMANGLE_ABI ~ItaniumPartialDemangler();
 
 private:
-  void* RootNode;
-  void* Context;
+  void* RootNode{ nullptr };
+  void* Context{ nullptr };
 };
 }  // namespace llvm
