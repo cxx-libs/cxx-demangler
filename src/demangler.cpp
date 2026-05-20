@@ -11,11 +11,12 @@
 
   #include <mutex>
 // clang-format off
-#include <windows.h>
-#include <dbghelp.h>
+  #include <windows.h>
+  #include <dbghelp.h>
 // clang-format on
 
   #pragma comment( lib, "Dbghelp.lib" )
+
 std::string cxx::demangler::Demangler::call_os_backend( const std::string_view mangled )
 {
   if( mangled.empty() ) return {};
@@ -44,9 +45,11 @@ std::string cxx::demangler::Demangler::call_os_backend( const std::string_view m
   } while( result == 0 && size <= max_size );
   return std::string( mangled );
 }
-  #undef DBGHELP_TRANSLATE_TCHAR
+
 #else
+
   #include <cxxabi.h>
+
 std::string cxx::demangler::Demangler::call_os_backend( const std::string_view mangled )
 {
   if( !buffer ) buffer.reset( new( std::nothrow ) char[default_capacity] );
@@ -73,6 +76,7 @@ std::string cxx::demangler::Demangler::call_os_backend( const std::string_view m
   else
     return std::string( mangled );  // fallback
 }
+
 #endif
 
 std::size_t cxx::demangler::Demangler::preallocate_buffers( std::size_t size ) noexcept

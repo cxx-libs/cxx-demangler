@@ -1,6 +1,5 @@
 #pragma once
 #include <cstddef>
-#include <cstdint>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -42,7 +41,7 @@ public:
    * - Demangling behavior and output format
    * - Performance characteristics
    */
-  enum class Backend : std::uint8_t
+  enum class Backend : unsigned char
   {
     /**
      * @brief Use the operating system's native demangling backend.
