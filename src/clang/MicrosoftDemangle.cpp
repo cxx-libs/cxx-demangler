@@ -1283,7 +1283,7 @@ EncodedStringLiteralNode* Demangler::demangleStringLiteral( std::string_view& Ma
   MangledName.remove_prefix( 1 );
   switch( F )
   {
-    case '1': IsWcharT = true; DEMANGLE_FALLTHROUGH;
+    case '1': IsWcharT = true; [[fallthrough]];
     case '0': break;
     default: goto StringLiteralError;
   }
@@ -2182,9 +2182,9 @@ NodeArrayNode* Demangler::demangleTemplateParameterList( std::string_view& Mangl
 
       switch( InheritanceSpecifier )
       {
-        case 'J': TPRN->ThunkOffsets[TPRN->ThunkOffsetCount++] = demangleSigned( MangledName ); DEMANGLE_FALLTHROUGH;
-        case 'I': TPRN->ThunkOffsets[TPRN->ThunkOffsetCount++] = demangleSigned( MangledName ); DEMANGLE_FALLTHROUGH;
-        case 'H': TPRN->ThunkOffsets[TPRN->ThunkOffsetCount++] = demangleSigned( MangledName ); DEMANGLE_FALLTHROUGH;
+        case 'J': TPRN->ThunkOffsets[TPRN->ThunkOffsetCount++] = demangleSigned( MangledName ); [[fallthrough]];
+        case 'I': TPRN->ThunkOffsets[TPRN->ThunkOffsetCount++] = demangleSigned( MangledName ); [[fallthrough]];
+        case 'H': TPRN->ThunkOffsets[TPRN->ThunkOffsetCount++] = demangleSigned( MangledName ); [[fallthrough]];
         case '1': break;
         default: DEMANGLE_UNREACHABLE;
       }
@@ -2210,7 +2210,7 @@ NodeArrayNode* Demangler::demangleTemplateParameterList( std::string_view& Mangl
 
       switch( InheritanceSpecifier )
       {
-        case 'G': TPRN->ThunkOffsets[TPRN->ThunkOffsetCount++] = demangleSigned( MangledName ); DEMANGLE_FALLTHROUGH;
+        case 'G': TPRN->ThunkOffsets[TPRN->ThunkOffsetCount++] = demangleSigned( MangledName ); [[fallthrough]];
         case 'F':
           TPRN->ThunkOffsets[TPRN->ThunkOffsetCount++] = demangleSigned( MangledName );
           TPRN->ThunkOffsets[TPRN->ThunkOffsetCount++] = demangleSigned( MangledName );

@@ -295,10 +295,6 @@ public:
   // Silence compiler warnings, this dtor will never be called.
   virtual ~Node() = default;
 
-#ifndef NDEBUG
-  DEMANGLE_DUMP_METHOD void dump() const;
-#endif
-
 private:
   friend class OutputBuffer;
 
@@ -4059,7 +4055,7 @@ template<typename Derived, typename Alloc> Node* AbstractManglingParser<Derived,
         Result = getDerived().parseFunctionType();
         break;
       }
-      DEMANGLE_FALLTHROUGH;
+      [[fallthrough]];
     }
     case 'U':
     {
@@ -4425,7 +4421,7 @@ template<typename Derived, typename Alloc> Node* AbstractManglingParser<Derived,
         }
         break;
       }
-      DEMANGLE_FALLTHROUGH;
+      [[fallthrough]];
     }
     //        ::= <class-enum-type>
     default:
