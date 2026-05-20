@@ -13,13 +13,13 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "llvm/Demangle/MicrosoftDemangle.h"
+#include "MicrosoftDemangle.h"
 
-#include "llvm/Demangle/Demangle.h"
-#include "llvm/Demangle/DemangleConfig.h"
-#include "llvm/Demangle/MicrosoftDemangleNodes.h"
-#include "llvm/Demangle/StringViewExtras.h"
-#include "llvm/Demangle/Utility.h"
+#include "Demangle.h"
+#include "DemangleConfig.h"
+#include "MicrosoftDemangleNodes.h"
+#include "StringViewExtras.h"
+#include "Utility.h"
 
 #include <cctype>
 #include <cstdio>
@@ -40,14 +40,14 @@ struct NodeList
 
 static bool consumeFront( std::string_view& S, char C )
 {
-  if( !llvm::itanium_demangle::starts_with( S, C ) ) return false;
+  if( !cxx::demangler::backend::clang::starts_with( S, C ) ) return false;
   S.remove_prefix( 1 );
   return true;
 }
 
 static bool consumeFront( std::string_view& S, std::string_view C )
 {
-  if( !llvm::itanium_demangle::starts_with( S, C ) ) return false;
+  if( !cxx::demangler::backend::clang::starts_with( S, C ) ) return false;
   S.remove_prefix( C.size() );
   return true;
 }
@@ -61,7 +61,7 @@ static bool consumeFront( std::string_view& S, std::string_view PrefixA, std::st
 static bool startsWith( std::string_view S, std::string_view PrefixA, std::string_view PrefixB, bool A )
 {
   const std::string_view& Prefix = A ? PrefixA : PrefixB;
-  return llvm::itanium_demangle::starts_with( S, Prefix );
+  return cxx::demangler::backend::clang::starts_with( S, Prefix );
 }
 
 bool Demangler::isMemberPointer( std::string_view MangledName, bool& Error )
@@ -204,7 +204,7 @@ static bool isCustomType( std::string_view S ) { return S[0] == '?'; }
 
 static bool isPointerType( std::string_view S )
 {
-  if( llvm::itanium_demangle::starts_with( S, "$$Q" ) )  // foo &&
+  if( cxx::demangler::backend::clang::starts_with( S, "$$Q" ) )  // foo &&
     return true;
 
   switch( S.front() )
@@ -221,7 +221,7 @@ static bool isPointerType( std::string_view S )
 
 static bool isArrayType( std::string_view S ) { return S[0] == 'Y'; }
 
-static bool isFunctionType( std::string_view S ) { return llvm::itanium_demangle::starts_with( S, "$$A8@@" ) || llvm::itanium_demangle::starts_with( S, "$$A6" ); }
+static bool isFunctionType( std::string_view S ) { return cxx::demangler::backend::clang::starts_with( S, "$$A8@@" ) || cxx::demangler::backend::clang::starts_with( S, "$$A6" ); }
 
 static FunctionRefQualifier demangleFunctionRefQualifier( std::string_view& MangledName )
 {
@@ -496,7 +496,7 @@ SymbolNode* Demangler::demangleSpecialIntrinsic( std::string_view& MangledName )
 
 IdentifierNode* Demangler::demangleFunctionIdentifierCode( std::string_view& MangledName )
 {
-  assert( llvm::itanium_demangle::starts_with( MangledName, '?' ) );
+  assert( cxx::demangler::backend::clang::starts_with( MangledName, '?' ) );
   MangledName.remove_prefix( 1 );
   if( MangledName.empty() )
   {
@@ -757,7 +757,7 @@ SymbolNode* Demangler::demangleDeclarator( std::string_view& MangledName )
 
 SymbolNode* Demangler::demangleMD5Name( std::string_view& MangledName )
 {
-  assert( llvm::itanium_demangle::starts_with( MangledName, "??@" ) );
+  assert( cxx::demangler::backend::clang::starts_with( MangledName, "??@" ) );
   // This is an MD5 mangled name.  We can't demangle it, just return the
   // mangled name.
   // An MD5 mangled name is ??@ followed by 32 characters and a terminating @.
@@ -794,7 +794,7 @@ SymbolNode* Demangler::demangleMD5Name( std::string_view& MangledName )
 
 SymbolNode* Demangler::demangleTypeinfoName( std::string_view& MangledName )
 {
-  assert( llvm::itanium_demangle::starts_with( MangledName, '.' ) );
+  assert( cxx::demangler::backend::clang::starts_with( MangledName, '.' ) );
   consumeFront( MangledName, '.' );
 
   TypeNode* T = demangleType( MangledName, QualifierMangleMode::Result );
@@ -812,12 +812,12 @@ SymbolNode* Demangler::parse( std::string_view& MangledName )
   // Typeinfo names are strings stored in RTTI data. They're not symbol names.
   // It's still useful to demangle them. They're the only demangled entity
   // that doesn't start with a "?" but a ".".
-  if( llvm::itanium_demangle::starts_with( MangledName, '.' ) ) return demangleTypeinfoName( MangledName );
+  if( cxx::demangler::backend::clang::starts_with( MangledName, '.' ) ) return demangleTypeinfoName( MangledName );
 
-  if( llvm::itanium_demangle::starts_with( MangledName, "??@" ) ) return demangleMD5Name( MangledName );
+  if( cxx::demangler::backend::clang::starts_with( MangledName, "??@" ) ) return demangleMD5Name( MangledName );
 
   // MSVC-style mangled symbols must start with '?'.
-  if( !llvm::itanium_demangle::starts_with( MangledName, '?' ) )
+  if( !cxx::demangler::backend::clang::starts_with( MangledName, '?' ) )
   {
     Error = true;
     return nullptr;
@@ -996,7 +996,7 @@ void Demangler::memorizeIdentifier( IdentifierNode* Identifier )
 
 IdentifierNode* Demangler::demangleTemplateInstantiationName( std::string_view& MangledName, NameBackrefBehavior NBB )
 {
-  assert( llvm::itanium_demangle::starts_with( MangledName, "?$" ) );
+  assert( cxx::demangler::backend::clang::starts_with( MangledName, "?$" ) );
   consumeFront( MangledName, "?$" );
 
   BackrefContext OuterContext;
@@ -1046,7 +1046,7 @@ static uint8_t rebasedHexDigitToNumber( char C )
 uint8_t Demangler::demangleCharLiteral( std::string_view& MangledName )
 {
   assert( !MangledName.empty() );
-  if( !llvm::itanium_demangle::starts_with( MangledName, '?' ) )
+  if( !cxx::demangler::backend::clang::starts_with( MangledName, '?' ) )
   {
     const uint8_t F = MangledName.front();
     MangledName.remove_prefix( 1 );
@@ -1404,7 +1404,7 @@ std::string_view Demangler::demangleSimpleString( std::string_view& MangledName,
 
 NamedIdentifierNode* Demangler::demangleAnonymousNamespaceName( std::string_view& MangledName )
 {
-  assert( llvm::itanium_demangle::starts_with( MangledName, "?A" ) );
+  assert( cxx::demangler::backend::clang::starts_with( MangledName, "?A" ) );
   consumeFront( MangledName, "?A" );
 
   NamedIdentifierNode* Node = Arena.alloc<NamedIdentifierNode>();
@@ -1503,7 +1503,7 @@ IdentifierNode* Demangler::demangleUnqualifiedTypeName( std::string_view& Mangle
   // refer to previously mangled types.
   if( startsWithDigit( MangledName ) ) return demangleBackRefName( MangledName );
 
-  if( llvm::itanium_demangle::starts_with( MangledName, "?$" ) ) return demangleTemplateInstantiationName( MangledName, NBB_Template );
+  if( cxx::demangler::backend::clang::starts_with( MangledName, "?$" ) ) return demangleTemplateInstantiationName( MangledName, NBB_Template );
 
   return demangleSimpleName( MangledName, Memorize );
 }
@@ -1511,8 +1511,8 @@ IdentifierNode* Demangler::demangleUnqualifiedTypeName( std::string_view& Mangle
 IdentifierNode* Demangler::demangleUnqualifiedSymbolName( std::string_view& MangledName, NameBackrefBehavior NBB )
 {
   if( startsWithDigit( MangledName ) ) return demangleBackRefName( MangledName );
-  if( llvm::itanium_demangle::starts_with( MangledName, "?$" ) ) return demangleTemplateInstantiationName( MangledName, NBB );
-  if( llvm::itanium_demangle::starts_with( MangledName, '?' ) ) return demangleFunctionIdentifierCode( MangledName );
+  if( cxx::demangler::backend::clang::starts_with( MangledName, "?$" ) ) return demangleTemplateInstantiationName( MangledName, NBB );
+  if( cxx::demangler::backend::clang::starts_with( MangledName, '?' ) ) return demangleFunctionIdentifierCode( MangledName );
   return demangleSimpleName( MangledName, /*Memorize=*/( NBB & NBB_Simple ) != 0 );
 }
 
@@ -1520,9 +1520,9 @@ IdentifierNode* Demangler::demangleNameScopePiece( std::string_view& MangledName
 {
   if( startsWithDigit( MangledName ) ) return demangleBackRefName( MangledName );
 
-  if( llvm::itanium_demangle::starts_with( MangledName, "?$" ) ) return demangleTemplateInstantiationName( MangledName, NBB_Template );
+  if( cxx::demangler::backend::clang::starts_with( MangledName, "?$" ) ) return demangleTemplateInstantiationName( MangledName, NBB_Template );
 
-  if( llvm::itanium_demangle::starts_with( MangledName, "?A" ) ) return demangleAnonymousNamespaceName( MangledName );
+  if( cxx::demangler::backend::clang::starts_with( MangledName, "?A" ) ) return demangleAnonymousNamespaceName( MangledName );
 
   if( startsWithLocalScopePattern( MangledName ) ) return demangleLocallyScopedNamePiece( MangledName );
 
@@ -1730,7 +1730,7 @@ TypeNode* Demangler::demangleType( std::string_view& MangledName, QualifierMangl
     if( consumeFront( MangledName, "$$A8@@" ) ) Ty = demangleFunctionType( MangledName, true );
     else
     {
-      assert( llvm::itanium_demangle::starts_with( MangledName, "$$A6" ) );
+      assert( cxx::demangler::backend::clang::starts_with( MangledName, "$$A6" ) );
       consumeFront( MangledName, "$$A6" );
       Ty = demangleFunctionType( MangledName, false );
     }
@@ -1843,7 +1843,7 @@ FunctionSymbolNode* Demangler::demangleFunctionEncoding( std::string_view& Mangl
 
 CustomTypeNode* Demangler::demangleCustomType( std::string_view& MangledName )
 {
-  assert( llvm::itanium_demangle::starts_with( MangledName, '?' ) );
+  assert( cxx::demangler::backend::clang::starts_with( MangledName, '?' ) );
   MangledName.remove_prefix( 1 );
 
   CustomTypeNode* CTN = Arena.alloc<CustomTypeNode>();
@@ -2092,7 +2092,7 @@ NodeArrayNode* Demangler::demangleFunctionParameterList( std::string_view& Mangl
   NodeList*  Head    = Arena.alloc<NodeList>();
   NodeList** Current = &Head;
   size_t     Count   = 0;
-  while( !Error && !llvm::itanium_demangle::starts_with( MangledName, '@' ) && !llvm::itanium_demangle::starts_with( MangledName, 'Z' ) )
+  while( !Error && !cxx::demangler::backend::clang::starts_with( MangledName, '@' ) && !cxx::demangler::backend::clang::starts_with( MangledName, 'Z' ) )
   {
     ++Count;
 
@@ -2153,7 +2153,7 @@ NodeArrayNode* Demangler::demangleTemplateParameterList( std::string_view& Mangl
   NodeList** Current = &Head;
   size_t     Count   = 0;
 
-  while( !llvm::itanium_demangle::starts_with( MangledName, '@' ) )
+  while( !cxx::demangler::backend::clang::starts_with( MangledName, '@' ) )
   {
     if( consumeFront( MangledName, "$S" ) || consumeFront( MangledName, "$$V" ) || consumeFront( MangledName, "$$$V" ) || consumeFront( MangledName, "$$Z" ) )
     {
@@ -2211,7 +2211,7 @@ NodeArrayNode* Demangler::demangleTemplateParameterList( std::string_view& Mangl
       char InheritanceSpecifier = MangledName.front();
       MangledName.remove_prefix( 1 );
       SymbolNode* S = nullptr;
-      if( llvm::itanium_demangle::starts_with( MangledName, '?' ) )
+      if( cxx::demangler::backend::clang::starts_with( MangledName, '?' ) )
       {
         S = parse( MangledName );
         if( Error || !S->Name )
@@ -2233,7 +2233,7 @@ NodeArrayNode* Demangler::demangleTemplateParameterList( std::string_view& Mangl
       TPRN->Affinity = PointerAffinity::Pointer;
       TPRN->Symbol   = S;
     }
-    else if( llvm::itanium_demangle::starts_with( MangledName, "$E?" ) )
+    else if( cxx::demangler::backend::clang::starts_with( MangledName, "$E?" ) )
     {
       consumeFront( MangledName, "$E" );
       // Reference to symbol
@@ -2284,7 +2284,7 @@ NodeArrayNode* Demangler::demangleTemplateParameterList( std::string_view& Mangl
 
   // Template parameter lists cannot be variadic, so it can only be terminated
   // by @ (as opposed to 'Z' in the function parameter case).
-  assert( llvm::itanium_demangle::starts_with( MangledName, '@' ) );  // The above loop exits only on '@'.
+  assert( cxx::demangler::backend::clang::starts_with( MangledName, '@' ) );  // The above loop exits only on '@'.
   consumeFront( MangledName, '@' );
   return nodeListToNodeArray( Arena, Head, Count );
 }

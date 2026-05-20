@@ -11,12 +11,7 @@
 // a dependency on LLVMSupport.
 //
 //===----------------------------------------------------------------------===//
-
-#ifndef LLVM_DEMANGLE_DEMANGLECONFIG_H
-#define LLVM_DEMANGLE_DEMANGLECONFIG_H
-
-// llvm-config.h is required for LLVM_ENABLE_LLVM_EXPORT_ANNOTATIONS
-#include "llvm/Config/llvm-config.h"
+#pragma once
 
 #ifndef __has_feature
   #define __has_feature( x ) 0
@@ -118,6 +113,4 @@
       #define DEMANGLE_ABI
     #endif
   #endif
-#endif
-
 #endif

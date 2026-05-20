@@ -5,13 +5,11 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 //===----------------------------------------------------------------------===//
+#pragma once
 
-#ifndef LLVM_DEMANGLE_MICROSOFTDEMANGLE_H
-#define LLVM_DEMANGLE_MICROSOFTDEMANGLE_H
-
-#include "llvm/Demangle/Demangle.h"
-#include "llvm/Demangle/DemangleConfig.h"
-#include "llvm/Demangle/MicrosoftDemangleNodes.h"
+#include "Demangle.h"
+#include "DemangleConfig.h"
+#include "MicrosoftDemangleNodes.h"
 
 #include <cassert>
 #include <string_view>
@@ -282,5 +280,3 @@ private:
 
 }  // namespace ms_demangle
 }  // namespace llvm
-
-#endif  // LLVM_DEMANGLE_MICROSOFTDEMANGLE_H

@@ -5,9 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 //
 //===----------------------------------------------------------------------===//
-
-#ifndef LLVM_DEMANGLE_DEMANGLE_H
-#define LLVM_DEMANGLE_DEMANGLE_H
+#pragma once
 
 #include "DemangleConfig.h"
 
@@ -135,5 +133,3 @@ private:
   void* Context;
 };
 }  // namespace llvm
-
-#endif

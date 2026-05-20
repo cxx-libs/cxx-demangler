@@ -11,15 +11,14 @@
 // cp-to-llvm.sh to update the copy.  See README.txt for more details.
 //
 //===----------------------------------------------------------------------===//
-
-#ifndef DEMANGLE_STRINGVIEW_H
-#define DEMANGLE_STRINGVIEW_H
+#pragma once
 
 #include "DemangleConfig.h"
 
 #include <string_view>
 
-DEMANGLE_NAMESPACE_BEGIN
+namespace cxx::demangler::backend::clang
+{
 
 inline bool starts_with( std::string_view self, char C ) noexcept { return !self.empty() && *self.begin() == C; }
 
@@ -30,6 +29,4 @@ inline bool starts_with( std::string_view haystack, std::string_view needle ) no
   return haystack == needle;
 }
 
-DEMANGLE_NAMESPACE_END
-
-#endif
+}  // namespace cxx::demangler::backend::clang

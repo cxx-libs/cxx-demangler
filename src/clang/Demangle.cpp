@@ -10,14 +10,12 @@
 ///
 //===----------------------------------------------------------------------===//
 
-#include "llvm/Demangle/Demangle.h"
+#include "Demangle.h"
 
-#include "llvm/Demangle/StringViewExtras.h"
+#include "StringViewExtras.h"
 
 #include <cstdlib>
 #include <string_view>
-
-using llvm::itanium_demangle::starts_with;
 
 std::string llvm::demangle( std::string_view MangledName )
 {
@@ -25,7 +23,7 @@ std::string llvm::demangle( std::string_view MangledName )
 
   if( nonMicrosoftDemangle( MangledName, Result ) ) return Result;
 
-  if( starts_with( MangledName, '_' ) && nonMicrosoftDemangle( MangledName.substr( 1 ), Result, /*CanHaveLeadingDot=*/false ) ) return Result;
+  if( cxx::demangler::backend::clang::starts_with( MangledName, '_' ) && nonMicrosoftDemangle( MangledName.substr( 1 ), Result, /*CanHaveLeadingDot=*/false ) ) return Result;
 
   if( char* Demangled = microsoftDemangle( MangledName, nullptr, nullptr ) )
   {

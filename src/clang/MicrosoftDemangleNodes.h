@@ -9,9 +9,7 @@
 // This file defines the AST nodes used in the MSVC demangler.
 //
 //===----------------------------------------------------------------------===//
-
-#ifndef LLVM_DEMANGLE_MICROSOFTDEMANGLENODES_H
-#define LLVM_DEMANGLE_MICROSOFTDEMANGLENODES_H
+#pragma once
 
 #include "DemangleConfig.h"
 
@@ -782,5 +780,3 @@ struct DEMANGLE_ABI PointerAuthQualifierNode : public Node
 
 }  // namespace ms_demangle
 }  // namespace llvm
-
-#endif

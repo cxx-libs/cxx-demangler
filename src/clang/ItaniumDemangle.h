@@ -12,9 +12,7 @@
 // cp-to-llvm.sh to update the copy.  See README.txt for more details.
 //
 //===----------------------------------------------------------------------===//
-
-#ifndef DEMANGLE_ITANIUMDEMANGLE_H
-#define DEMANGLE_ITANIUMDEMANGLE_H
+#pragma once
 
 #include "DemangleConfig.h"
 #include "StringViewExtras.h"
@@ -1749,7 +1747,7 @@ public:
     if( isInstantiation() )
     {
       // The instantiations are typedefs that drop the "basic_" prefix.
-      DEMANGLE_ASSERT( starts_with( SV, "basic_" ), "" );
+      DEMANGLE_ASSERT( cxx::demangler::backend::clang::starts_with( SV, "basic_" ), "" );
       SV.remove_prefix( sizeof( "basic_" ) - 1 );
     }
     return SV;
@@ -2831,7 +2829,7 @@ template<typename Derived, typename Alloc> struct AbstractManglingParser
 
   bool consumeIf( std::string_view S )
   {
-    if( starts_with( std::string_view( First, Last - First ), S ) )
+    if( cxx::demangler::backend::clang::starts_with( std::string_view( First, Last - First ), S ) )
     {
       First += S.size();
       return true;
@@ -2987,9 +2985,9 @@ template<typename Derived, typename Alloc> struct AbstractManglingParser
       std::string_view Res = Name;
       if( Kind < Unnameable )
       {
-        DEMANGLE_ASSERT( starts_with( Res, "operator" ), "operator name does not start with 'operator'" );
+        DEMANGLE_ASSERT( cxx::demangler::backend::clang::starts_with( Res, "operator" ), "operator name does not start with 'operator'" );
         Res.remove_prefix( sizeof( "operator" ) - 1 );
-        if( starts_with( Res, ' ' ) ) Res.remove_prefix( 1 );
+        if( cxx::demangler::backend::clang::starts_with( Res, ' ' ) ) Res.remove_prefix( 1 );
       }
       return Res;
     }
@@ -3297,7 +3295,7 @@ template<typename Derived, typename Alloc> Node* AbstractManglingParser<Derived,
   if( numLeft() < Length || Length == 0 ) return nullptr;
   std::string_view Name( First, Length );
   First += Length;
-  if( starts_with( Name, "_GLOBAL__N" ) ) return make<NameType>( "(anonymous namespace)" );
+  if( cxx::demangler::backend::clang::starts_with( Name, "_GLOBAL__N" ) ) return make<NameType>( "(anonymous namespace)" );
   return make<NameType>( Name );
 }
 
@@ -4012,7 +4010,7 @@ template<typename Derived, typename Alloc> Node* AbstractManglingParser<Derived,
     if( Qual.empty() ) return nullptr;
 
     // extension            ::= U <objc-name> <objc-type>  # objc-type<identifier>
-    if( starts_with( Qual, "objcproto" ) )
+    if( cxx::demangler::backend::clang::starts_with( Qual, "objcproto" ) )
     {
       constexpr size_t Len = sizeof( "objcproto" ) - 1;
       std::string_view ProtoSourceName( Qual.data() + Len, Qual.size() - Len );
@@ -5860,5 +5858,3 @@ DEMANGLE_NAMESPACE_END
 #if defined( __clang__ )
   #pragma clang diagnostic pop
 #endif
-
-#endif  // DEMANGLE_ITANIUMDEMANGLE_H
