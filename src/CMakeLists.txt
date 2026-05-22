@@ -28,7 +28,7 @@ target_include_directories(cxx_demangler_shared
                             $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
                             $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/clang>
                             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-target_compile_definitions(cxx_demangler_shared PUBLIC CXX_EXPORTS)
+target_compile_definitions(cxx_demangler_shared PUBLIC CXX_EXPORTS CXX_SHARED)
 set_target_properties(cxx_demangler_shared
                       PROPERTIES
                         POSITION_INDEPENDENT_CODE ON
@@ -66,7 +66,8 @@ set_target_properties(cxx_demangler_static
                         CXX_EXTENSIONS OFF
                         CXX_STANDARD_REQUIRED ON
                         CXX_STANDARD 17
-                        OUTPUT_NAME cxx_demangler
+                        DEBUG_POSTFIX d
+                        OUTPUT_NAME cxx_static_demangler
                         PUBLIC_HEADER
                           "${PROJECT_SOURCE_DIR}/include/cxx/demangler/demangler.hpp;${PROJECT_SOURCE_DIR}/include/cxx/demangler/export.hpp"
                         DEBUG_POSTFIX d)

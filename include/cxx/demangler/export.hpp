@@ -1,10 +1,14 @@
 #pragma once
 
 #if defined( _WIN32 ) || defined( __CYGWIN__ )
-  #ifdef CXX_EXPORTS
-    #define CXX_EXPORT __declspec( dllexport )
+  #if defined( CXX_SHARED )
+    #ifdef CXX_EXPORTS
+      #define CXX_EXPORT __declspec( dllexport )
+    #else
+      #define CXX_EXPORT __declspec( dllimport )
+    #endif
   #else
-    #define CXX_EXPORT __declspec( dllimport )
+    #define CXX_EXPORT
   #endif
   #define CXX_HIDDEN
 #else

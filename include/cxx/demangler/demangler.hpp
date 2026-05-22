@@ -43,7 +43,7 @@ public:
    * - Demangling behavior and output format
    * - Performance characteristics
    */
-  enum class Backend : unsigned char
+  enum class CXX_EXPORT Backend : unsigned char
   {
     /**
      * @brief Use the operating system's native demangling backend.

@@ -38,7 +38,7 @@ std::string cxx::demangler::Demangler::call_os_backend( const std::string_view m
     if( result != 0 ) return { buffer.get(), static_cast<std::size_t>( result ) };
     size *= 2;
     buffer.reset( new( std::nothrow ) char[size] );
-  } while( result == 0 && size <= max_size );
+  } while( result == 0 && size <= max_capacity );
   return std::string( mangled );
 }
 
